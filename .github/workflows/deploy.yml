@@ -14,7 +14,7 @@ on:
 
 jobs:
   deploy:
-    uses: ./.github/../pipelines/.github/workflows/deploy-job.yml
+    uses: CyborgCodeSyndicate/utilities/pipelines/.github/workflows/deploy-job.yml@main
     with:
       version_bump: ${{ github.event.inputs.version_bump || 'minor' }}
     secrets:

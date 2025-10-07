@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   validate:
-    uses: ./.github/../pipelines/.github/workflows/pr-validator-job.yml
+    uses: CyborgCodeSyndicate/utilities/pipelines/.github/workflows/pr-validator-job.yml@main
     with:
       sonar_project_key: CyborgCodeSyndicate_temp-project
       sonar_org: cyborgcodesyndicate
