@@ -1,0 +1,24 @@
+name: PR Validator
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  security-events: write
+
+jobs:
+  validate:
+    uses: ./.github/../pipelines/.github/workflows/pr-validator-job.yml
+    with:
+      sonar_project_key: CyborgCodeSyndicate_temp-project
+      sonar_org: cyborgcodesyndicate
+      nvd_api_key: ${{ secrets.NVD_API_KEY }}
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
+    secrets:
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

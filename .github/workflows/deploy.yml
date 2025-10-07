@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: none
+        type: choice
+        options: [major, minor, patch, none]
+
+jobs:
+  deploy:
+    uses: ./.github/../pipelines/.github/workflows/deploy-job.yml
+    with:
+      version_bump: ${{ github.event.inputs.version_bump || 'minor' }}
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

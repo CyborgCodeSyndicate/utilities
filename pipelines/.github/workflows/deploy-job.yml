@@ -1,0 +1,129 @@
+name: Deploy Library
+
+on:
+  workflow_call:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: false
+        default: none
+        type: string
+      modules:
+        description: 'Comma-separated Maven modules to deploy (optional)'
+        required: false
+        type: string
+    secrets:
+      GITHUB_TOKEN:
+        required: true
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      OWNER: ${{ github.repository_owner }}
+      REPO:  ${{ github.event.repository.name }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Compute next version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bump="${{ inputs.version_bump }}"
+          branch="${GITHUB_REF#refs/heads/}"
+
+          if [[ "$bump" != "none" && "$branch" != "main" ]]; then
+            echo "❌ '$bump' releases allowed only on main" >&2
+            exit 1
+          fi
+
+          current=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate 2>/dev/null || echo "")
+          [[ -z "$current" ]] && { echo "Could not determine project.version" >&2; exit 1; }
+
+          base=${current%-SNAPSHOT}
+          IFS='.' read -ra parts <<<"$base"
+          maj=${parts[0]:-0}; min=${parts[1]:-0}; pat=${parts[2]:-0}
+
+          if [[ "$bump" == "major" ]]; then
+            maj=$((maj+1)); min=0; pat=0
+          elif [[ "$bump" == "minor" ]]; then
+            min=$((min+1)); pat=0
+          elif [[ "$bump" == "patch" ]]; then
+            pat=$((pat+1))
+          else
+            sha=$(git rev-parse --short HEAD)
+            run_id="${GITHUB_RUN_ID:-}"
+            next="${base}-SNAPSHOT-${sha}-${run_id}"
+          fi
+
+          [[ -z "${next:-}" ]] && next="${maj}.${min}.${pat}"
+
+          echo "current=$current" >>"$GITHUB_OUTPUT"
+          echo "next=$next"       >>"$GITHUB_OUTPUT"
+          echo "bump=$bump"       >>"$GITHUB_OUTPUT"
+          echo "branch=$branch"   >>"$GITHUB_OUTPUT"
+
+      - name: Set POM version
+        run: >
+          mvn -B versions:set
+          -DnewVersion=${{ steps.version.outputs.next }}
+          -DgenerateBackupPoms=false
+
+      - name: Commit version bump & tag
+        if: ${{ steps.version.outputs.bump != 'none' }}
+        env:
+          NEXT: ${{ steps.version.outputs.next }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(release): $NEXT" || echo "Nothing to commit"
+          git tag "v$NEXT"
+          git push --follow-tags
+
+      - name: Deploy to GitHub Packages
+        shell: bash
+        run: |
+          set -e
+          if [[ -n "${{ inputs.modules }}" ]]; then
+            modules_flag="-pl \"${{ inputs.modules }}\" -am"
+          else
+            modules_flag=""
+          fi
+          
+          eval mvn -B $modules_flag -DskipTests \
+            -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${OWNER}/${REPO} \
+            deploy
+
+      - name: Deployment summary
+        shell: bash
+        run: |
+          {
+            echo "### 📦 Deployment Summary"
+            echo ""
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| **Version published** | \`${{ steps.version.outputs.next }}\` |"
+            echo "| **Branch** | \`${{ steps.version.outputs.branch }}\` |"
+            if [[ "${{ steps.version.outputs.bump }}" == "none" ]]; then
+              echo "| **Type** | Snapshot build |"
+            else
+              echo "| **Type** | Release — **${{ steps.version.outputs.bump }}** |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
