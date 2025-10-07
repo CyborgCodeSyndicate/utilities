@@ -11,11 +11,21 @@ on:
         default: none
         type: choice
         options: [major, minor, patch, none]
+      modules:
+        description: 'Comma-separated Maven modules to deploy (optional)'
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   deploy:
-    uses: CyborgCodeSyndicate/utilities/pipelines/.github/workflows/deploy-job.yml@main
-    with:
-      version_bump: ${{ github.event.inputs.version_bump || 'minor' }}
-    secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./pipelines/deploy
+        with:
+          version_bump: ${{ inputs.version_bump || 'none' }}
+          modules: ${{ inputs.modules }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
