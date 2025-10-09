@@ -19,7 +19,7 @@ jobs:
       - name: Run PR pipeline
         uses: ./pipelines/pr-validator
         with:
-          sonar_project_key: CyborgCodeSyndicate_temp-project
+          sonar_project_key: CyborgCodeSyndicate_utilities
           sonar_org: cyborgcodesyndicate
           nvd_api_key: ${{ secrets.NVD_API_KEY }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}

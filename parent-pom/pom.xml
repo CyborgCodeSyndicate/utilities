@@ -344,7 +344,6 @@
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
                 <version>${testng.version}</version>
-                <scope>optional</scope>
             </dependency>
             <dependency>
                 <groupId>io.github.classgraph</groupId>
@@ -565,6 +564,7 @@
                         <skip>${dependency-check-maven.skip}</skip>
                         <skipTestScope>${dependency-check-maven.skipTestScope}</skipTestScope>
                         <failBuildOnCVSS>${vulnerabilities.threshold}</failBuildOnCVSS>
+                        <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                         <suppressionFiles>
                             <suppressionFile>
                                 ${project.basedir}/../dependency-check-suppressions.xml
