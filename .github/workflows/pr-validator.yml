@@ -1,0 +1,27 @@
+name: PR Validator
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: write
+  security-events: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run PR pipeline
+        uses: ./pipelines/pr-validator
+        with:
+          sonar_project_key: CyborgCodeSyndicate_utilities
+          sonar_org: cyborgcodesyndicate
+          nvd_api_key: ${{ secrets.NVD_API_KEY }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          java_version: "17"

@@ -1,0 +1,32 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: none
+        type: choice
+        options: [major, minor, patch, none]
+      modules:
+        description: 'Comma-separated Maven modules to deploy (optional)'
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./pipelines/deploy
+        with:
+          version_bump: ${{ inputs.version_bump || 'none' }}
+          modules: ${{ inputs.modules }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}

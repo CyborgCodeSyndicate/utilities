@@ -1,0 +1,124 @@
+name: PR Validator (composite)
+description: Build, test, scan, and report for PRs
+
+inputs:
+  sonar_project_key:
+    required: true
+    description: SonarCloud project key
+  sonar_org:
+    required: true
+    description: SonarCloud organization
+  nvd_api_key:
+    required: true
+    description: NVD API key (OWASP Dependency-Check)
+  sonar_token:
+    required: true
+    description: SonarCloud token
+  github_token:
+    required: true
+    description: GitHub token (for PR comments)
+  java_version:
+    required: false
+    default: "17"
+    description: Java version
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java_version }}
+        cache: maven
+
+    - name: Build & Verify
+      id: build
+      shell: bash
+      run: |
+        set -e
+        mvn -B clean verify \
+          -Ppr-validator \
+          -Dnvd.api.key="${{ inputs.nvd_api_key }}" \
+          --no-transfer-progress
+
+    - name: Unit tests → GitHub
+      if: always()
+      uses: dorny/test-reporter@v2
+      with:
+        name: Unit Tests
+        path: '**/target/surefire-reports/*.xml'
+        reporter: java-junit
+        max-annotations: 0
+        fail-on-error: false
+        comment-title: "Unit Test Results"
+        comment-mode: summary
+
+    - name: Merge SARIF files
+      shell: bash
+      run: |
+        set -e
+        mkdir -p sarif-merge
+        merge() {
+          pattern="$1"; out="$2"
+          mapfile -t files < <(find . -path "$pattern")
+          [[ ${#files[@]} -eq 0 ]] && { echo "No matches for $pattern"; return; }
+          jq -s '{version:"2.1.0", runs:(map(.runs) | add)}' "${files[@]}" \
+            > "sarif-merge/$out"
+          echo "Merged ${#files[@]} → sarif-merge/$out"
+        }
+        merge '*/target/spotbugs/spotbugs*.sarif' spotbugs-merged.sarif
+        merge '*/dependency-check-report.sarif'    dc-merged.sarif
+
+    - name: Upload SpotBugs SARIF
+      if: ${{ github.event.repository.private == false }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: sarif-merge/spotbugs-merged.sarif
+
+    - name: Upload Dependency-Check SARIF
+      if: ${{ github.event.repository.private == false }}
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: sarif-merge/dc-merged.sarif
+
+    - name: JaCoCo coverage → PR comment
+      uses: madrapps/jacoco-report@v1.7.2
+      with:
+        paths: '**/target/site/jacoco/ut/jacoco.xml'
+        token: ${{ inputs.github_token }}
+        min-coverage-overall: 90
+        min-coverage-changed-files: 90
+        comment-type: both
+
+    - name: SonarCloud scan
+      id: sonar
+      shell: bash
+      run: |
+        set -e
+        mvn -B sonar:sonar -Ppr-validator \
+          -Dsonar.projectKey=${{ inputs.sonar_project_key }} \
+          -Dsonar.organization=${{ inputs.sonar_org }} \
+          -Dsonar.token=${{ inputs.sonar_token }} \
+          -Dsonar.qualitygate.wait=true \
+          -Dsonar.host.url=https://sonarcloud.io
+
+    - name: Write PR summary
+      shell: bash
+      run: |
+        {
+          echo "## ⏱️ PR Quality-Gate Summary"
+          echo ""
+          echo "| Check | Status | View |"
+          echo "|-------|--------|------|"
+          echo "| **Unit Tests** | ${{ steps.build.outcome }} | see *Checks* tab |"
+          if [[ "${{ github.event.repository.private }}" == "false" ]]; then
+            echo "| **SpotBugs / FindSecBugs** | uploaded SARIF | *Security → Code scanning* |"
+            echo "| **OWASP Dependency-Check** | uploaded SARIF | *Security → Code scanning* |"
+          fi
+          echo "| **JaCoCo Coverage** | see PR comment | via *jacoco-report* |"
+          echo "| **SonarCloud Quality Gate** | ${{ steps.sonar.outcome }} | https://sonarcloud.io/dashboard?id=${{ inputs.sonar_project_key }} |"
+        } >> "$GITHUB_STEP_SUMMARY"
