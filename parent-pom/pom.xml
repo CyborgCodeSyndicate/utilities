@@ -9,7 +9,6 @@
         <version>1.1.0</version>
     </parent>
 
-    <groupId>io.cyborgcode</groupId>
     <artifactId>parent-pom</artifactId>
     <packaging>pom</packaging>
     <name>Cyborg Code Parent Pom</name>
@@ -22,76 +21,83 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Versions -->
-        <lombok.version>1.18.38</lombok.version>
-        <log4j.version>2.24.3</log4j.version>
+        <lombok.version>1.18.42</lombok.version>
+        <log4j.version>2.25.2</log4j.version>
         <reflections.version>0.10.2</reflections.version>
         <owner.version>1.0.12</owner.version>
-        <spring.version>3.4.4</spring.version>
-        <restassured.version>5.5.1</restassured.version>
-        <jackson.version>2.18.3</jackson.version>
+        <spring.version>3.5.6</spring.version>
+        <restassured.version>5.5.6</restassured.version>
+        <jackson.version>3.0.0</jackson.version>
         <jsonpath.version>2.9.0</jsonpath.version>
-        <assertj.version>3.27.3</assertj.version>
-        <junit.version>5.11.4</junit.version>
-        <mockito.version>5.17.0</mockito.version>
-        <h2.database.version>2.3.232</h2.database.version>
-        <jacoco.version>0.8.8</jacoco.version>
-        <allure.version>2.29.1</allure.version>
-        <selenium.version>4.31.0</selenium.version>
-        <webdrivermanager.version>6.1.0</webdrivermanager.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <junit-platform.version>1.12.2</junit-platform.version>
+        <assertj.version>3.27.6</assertj.version>
 
-        <manifold.version>2024.1.42</manifold.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <!-- Updated -->
+
+
+        <junit.version>6.0.0</junit.version>
+        <mockito.version>5.20.0</mockito.version>
+        <h2.database.version>2.4.240</h2.database.version>
+        <jacoco.version>0.8.14</jacoco.version>
+        <allure.version>2.30.0</allure.version>
+        <selenium.version>4.37.0</selenium.version>
+        <webdrivermanager.version>6.3.2</webdrivermanager.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <junit-platform.version>6.0.0</junit-platform.version>
+
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <surefire.parallel.type>methods</surefire.parallel.type>
         <surefire.parallel.threads>5</surefire.parallel.threads>
 
-        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-        <extra-enforcer-rules.version>1.9.0</extra-enforcer-rules.version>
+        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+        <extra-enforcer-rules.version>1.11.0</extra-enforcer-rules.version>
         <vulnerabilities.threshold>5.0</vulnerabilities.threshold>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
-        <checkstyle.version>10.22.0</checkstyle.version>
+        <checkstyle.version>12.0.1</checkstyle.version>
         <maven-checkstyle-plugin.configLocation>io/cyborgcode/static-data/roa_checks.xml</maven-checkstyle-plugin.configLocation>
         <delombok-maven-plugin.skip>false</delombok-maven-plugin.skip>
-        <maven-spring-boot-plugin.version>3.4.0</maven-spring-boot-plugin.version>
 
-        <dependency-check-maven.version>12.1.1</dependency-check-maven.version>
+<!--        <maven-spring-boot-plugin.version>3.4.0</maven-spring-boot-plugin.version>-->
+
+        <dependency-check-maven.version>12.1.8</dependency-check-maven.version>
         <dependency-check-maven.skip>false</dependency-check-maven.skip>
         <dependency-check-maven.skipTestScope>false</dependency-check-maven.skipTestScope>
         <dependency-check-maven.report.skip>false</dependency-check-maven.report.skip>
 
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+<!--        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>-->
+
         <project.reporting.outputDirectory>${project.build.directory}/site</project.reporting.outputDirectory>
         <jacoco.minimum.coverage>0.90</jacoco.minimum.coverage>
 
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
+        <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
 
-        <spotbugs-maven-plugin.version>4.9.0.0</spotbugs-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.9.7.0</spotbugs-maven-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
 
-        <maven-javadoc-plugin.version>3.11.1</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
 
-        <junit-bom.version>5.11.3</junit-bom.version>
-        <asm.version>9.8</asm.version>
-        <spotbugs-annotations.version>4.9.3</spotbugs-annotations.version>
-        <checker-qual.version>3.49.2</checker-qual.version>
-        <error_prone_annotations.version>2.38.0</error_prone_annotations.version>
-        <commons-compress.version>1.27.1</commons-compress.version>
-        <commons-io.version>2.19.0</commons-io.version>
+        <junit-bom.version>6.0.0</junit-bom.version>
+
+        <asm.version>9.9</asm.version>
+        <spotbugs-annotations.version>4.9.7</spotbugs-annotations.version>
+        <checker-qual.version>3.51.1</checker-qual.version>
+        <error_prone_annotations.version>2.42.0</error_prone_annotations.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
+        <commons-io.version>2.20.0</commons-io.version>
         <plexus-classworlds.version>2.9.0</plexus-classworlds.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
-        <maven.version>3.9.9</maven.version>
+        <maven.version>3.9.11</maven.version>
         <maven-plugin.version>3.15.1</maven-plugin.version>
         <testng.version>7.11.0</testng.version>
-        <classgraph.version>4.8.179</classgraph.version>
-        <httpclient5.version>5.4.4</httpclient5.version>
-        <commons-lang3.version>3.18.0</commons-lang3.version>
-        <gson.version>2.13.1</gson.version>
-        <jna.version>5.17.0</jna.version>
+        <classgraph.version>4.8.184</classgraph.version>
+        <httpclient5.version>5.5.1</httpclient5.version>
+        <commons-lang3.version>3.19.0</commons-lang3.version>
+        <gson.version>2.13.2</gson.version>
+        <jna.version>5.18.1</jna.version>
         <minimal.maven.version>[3.8,)</minimal.maven.version>
         <spotbugs-maven-plugin.excludeFilterFile>io/cyborgcode/static-data/spotbugs-exclude.xml
         </spotbugs-maven-plugin.excludeFilterFile>
+        <shared-static-data.version>${project.version}</shared-static-data.version>
     </properties>
 
     <dependencyManagement>
@@ -162,7 +168,7 @@
             </dependency>
 
             <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
+                <groupId>tools.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
                 <version>${jackson.version}</version>
                 <type>pom</type>
@@ -267,6 +273,18 @@
             <dependency>
                 <groupId>org.junit.platform</groupId>
                 <artifactId>junit-platform-commons</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
                 <version>${junit-platform.version}</version>
             </dependency>
 
@@ -479,7 +497,7 @@
                         <dependency>
                             <groupId>io.cyborgcode.utilities</groupId>
                             <artifactId>shared-static-data</artifactId>
-                            <version>${project.version}</version>
+                            <version>${shared-static-data.version}</version>
                         </dependency>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
@@ -709,7 +727,7 @@
                         <dependency>
                             <groupId>io.cyborgcode.utilities</groupId>
                             <artifactId>shared-static-data</artifactId>
-                            <version>${project.version}</version>
+                            <version>${shared-static-data.version}</version>
                         </dependency>
                     </dependencies>
 
@@ -880,9 +898,20 @@
 
     <repositories>
         <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/ORG/REPO</url>
+            <id>github-utilities</id>
+            <name>GitHub Packages for Utilities</name>
+            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/utilities</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>github-roa-libraries</id>
+            <name>GitHub Packages for ROA Libraries</name>
+            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/roa-libraries</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
