@@ -30,16 +30,16 @@ runs:
     - uses: actions/checkout@v4
       with: { fetch-depth: 0 }
 
-    - name: Compute Maven server lists
-      id: maven_vars
+    - name: Configure Java & Maven (with servers)
       if: ${{ inputs.github_packages_user != '' && inputs.github_packages_token != '' }}
       shell: bash
       run: |
         set -euo pipefail
+        
+        # Compute server list (but NOT credentials)
         DEFAULT="github-utilities"
         EXTRAS="${{ inputs.server_ids }}"
-
-        # Build servers list: always include default, add cleaned extras (no dups/empties)
+        
         SERVERS="$DEFAULT"
         if [ -n "$EXTRAS" ]; then
           IFS=',' read -ra ARR <<< "$EXTRAS"
@@ -50,41 +50,49 @@ runs:
             SERVERS="$SERVERS,$id"
           done
         fi
-
-        # Count servers
+        
+        echo "📋 Server IDs to configure: $SERVERS"
+        
+        # Count servers for credential repetition
         IFS=',' read -ra LIST <<< "$SERVERS"
         COUNT=${#LIST[@]}
-
-        # Use provided creds for all servers
-        USER="${{ inputs.github_packages_user }}"
-        PASS="${{ inputs.github_packages_token }}"
-
-        # Repeat user/pass COUNT times (comma-separated) to match setup-java requirements
-        USERLIST="$USER"
-        PASSLIST="$PASS"
-        for ((i=1;i<COUNT;i++)); do
-          USERLIST="$USERLIST,$USER"
-          PASSLIST="$PASSLIST,$PASS"
+        
+        # Create settings.xml directly with proper authentication
+        mkdir -p ~/.m2
+        
+        cat > ~/.m2/settings.xml << 'EOF'
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+          <servers>
+        EOF
+        
+        # Add server configuration for each server ID
+        for server in "${LIST[@]}"; do
+          cat >> ~/.m2/settings.xml << EOF
+            <server>
+              <id>${server}</id>
+              <username>${MAVEN_USERNAME}</username>
+              <password>${MAVEN_PASSWORD}</password>
+            </server>
+        EOF
         done
+        
+        cat >> ~/.m2/settings.xml << 'EOF'
+          </servers>
+        </settings>
+        EOF
+        
+        echo "✅ Created settings.xml with ${COUNT} server configuration(s)"
+        echo "Configured servers:"
+        grep "<id>" ~/.m2/settings.xml | sed 's/.*<id>\(.*\)<\/id>.*/  - \1/'
+      env:
+        MAVEN_USERNAME: ${{ inputs.github_packages_user }}
+        MAVEN_PASSWORD: ${{ inputs.github_packages_token }}
 
-        echo "server_ids=$SERVERS"           >> "$GITHUB_OUTPUT"
-        echo "server_usernames=$USERLIST"    >> "$GITHUB_OUTPUT"
-        echo "server_passwords=$PASSLIST"    >> "$GITHUB_OUTPUT"
 
-    - name: Configure Java & Maven (with servers)
-      if: ${{ inputs.github_packages_user != '' && inputs.github_packages_token != '' }}
-      uses: actions/setup-java@v4
-      with:
-        distribution: temurin
-        java-version: ${{ inputs.java_version }}
-        cache: maven
-        server-id: ${{ steps.maven_vars.outputs.server_ids }}
-        server-username: ${{ steps.maven_vars.outputs.server_usernames }}
-        server-password: ${{ steps.maven_vars.outputs.server_passwords }}
-
-    # ✅ Path B: no creds provided → plain setup-java (no servers configured)
     - name: Configure Java (no servers)
-      if: ${{ inputs.github_packages_user == '' || inputs.github_packages_token == '' }}
       uses: actions/setup-java@v4
       with:
         distribution: temurin
