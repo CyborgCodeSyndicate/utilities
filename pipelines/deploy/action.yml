@@ -12,6 +12,13 @@ inputs:
   github_token:
     description: 'GitHub token'
     required: true
+  server_ids:
+    required: false
+    default: ""
+  github_packages_user:
+    required: false
+  github_packages_token:
+    required: false
 
 runs:
   using: "composite"
@@ -19,11 +26,55 @@ runs:
     - uses: actions/checkout@v4
       with: { fetch-depth: 0 }
 
-    - uses: actions/setup-java@v4
+    - name: Compute Maven server lists
+      id: maven_vars
+      shell: bash
+      run: |
+        set -euo pipefail
+        DEFAULT="github-utilities"
+        EXTRAS="${{ inputs.server_ids }}"
+
+        # Build servers list: always include default, add cleaned extras (no dups/empties)
+        SERVERS="$DEFAULT"
+        if [ -n "$EXTRAS" ]; then
+          IFS=',' read -ra ARR <<< "$EXTRAS"
+          for raw in "${ARR[@]}"; do
+            id="$(echo "$raw" | xargs)"
+            [ -z "$id" ] && continue
+            [ "$id" = "$DEFAULT" ] && continue
+            SERVERS="$SERVERS,$id"
+          done
+        fi
+
+        # Count servers
+        IFS=',' read -ra LIST <<< "$SERVERS"
+        COUNT=${#LIST[@]}
+
+        # Choose creds (fallback to actor/token if not provided)
+        USER="${{ inputs.github_packages_user || github.actor }}"
+        PASS="${{ inputs.github_packages_token || github.token }}"
+
+        # Repeat user/pass COUNT times (comma-separated) to match setup-java requirements
+        USERLIST="$USER"
+        PASSLIST="$PASS"
+        for ((i=1;i<COUNT;i++)); do
+          USERLIST="$USERLIST,$USER"
+          PASSLIST="$PASSLIST,$PASS"
+        done
+
+        echo "server_ids=$SERVERS"           >> "$GITHUB_OUTPUT"
+        echo "server_usernames=$USERLIST"    >> "$GITHUB_OUTPUT"
+        echo "server_passwords=$PASSLIST"    >> "$GITHUB_OUTPUT"    
+
+    - name: Configure Java & Maven
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
-        java-version: 17
+        java-version: ${{ inputs.java_version }}
         cache: maven
+        server-id: ${{ steps.maven_vars.outputs.server_ids }}
+        server-username: ${{ steps.maven_vars.outputs.server_usernames }}
+        server-password: ${{ steps.maven_vars.outputs.server_passwords }}
 
     # replicate your job-level env (OWNER, REPO, GITHUB_TOKEN)
     - name: Set env
