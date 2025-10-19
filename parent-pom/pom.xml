@@ -53,17 +53,18 @@
         <vulnerabilities.threshold>5.0</vulnerabilities.threshold>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>12.0.1</checkstyle.version>
-        <maven-checkstyle-plugin.configLocation>io/cyborgcode/static-data/roa_checks.xml</maven-checkstyle-plugin.configLocation>
+        <maven-checkstyle-plugin.configLocation>io/cyborgcode/static-data/roa_checks.xml
+        </maven-checkstyle-plugin.configLocation>
         <delombok-maven-plugin.skip>false</delombok-maven-plugin.skip>
 
-<!--        <maven-spring-boot-plugin.version>3.4.0</maven-spring-boot-plugin.version>-->
+        <!--        <maven-spring-boot-plugin.version>3.4.0</maven-spring-boot-plugin.version>-->
 
         <dependency-check-maven.version>12.1.8</dependency-check-maven.version>
         <dependency-check-maven.skip>false</dependency-check-maven.skip>
         <dependency-check-maven.skipTestScope>false</dependency-check-maven.skipTestScope>
         <dependency-check-maven.report.skip>false</dependency-check-maven.report.skip>
 
-<!--        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>-->
+        <!--        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>-->
 
         <project.reporting.outputDirectory>${project.build.directory}/site</project.reporting.outputDirectory>
         <jacoco.minimum.coverage>0.90</jacoco.minimum.coverage>
@@ -585,7 +586,7 @@
                         <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                         <suppressionFiles>
                             <suppressionFile>
-                                ${project.basedir}/../dependency-check-suppressions.xml
+                                ${maven.multiModuleProjectDirectory}/dependency-check-suppressions.xml
                             </suppressionFile>
                         </suppressionFiles>
                         <formats>
@@ -829,6 +830,19 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>has-sources</id>
+            <activation>
+                <file>
+                    <!-- pick the check you want; src/main/java is typical -->
+                    <exists>${project.basedir}/src/main/java</exists>
+                </file>
+            </activation>
+            <build>
+
+            </build>
+        </profile>
+
     </profiles>
 
 
