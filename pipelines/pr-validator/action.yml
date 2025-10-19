@@ -103,6 +103,8 @@ runs:
         distribution: temurin
         java-version: ${{ inputs.java_version }}
         cache: maven
+        overwrite-settings: false
+
 
     - name: Build & Verify
       id: build
