@@ -923,9 +923,20 @@
 
     <pluginRepositories>
         <pluginRepository>
-            <id>github</id>
+            <id>github-roa-libraries</id>
             <name>GitHub Packages for Plugins</name>
-            <url>https://maven.pkg.github.com/ORG/REPO</url>
+            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/roa-libraries</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>github-utilities</id>
+            <name>GitHub Packages for Plugins</name>
+            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/utilities</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
