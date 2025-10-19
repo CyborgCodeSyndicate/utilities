@@ -32,6 +32,7 @@ runs:
 
     - name: Compute Maven server lists
       id: maven_vars
+      if: ${{ inputs.github_packages_user != '' && inputs.github_packages_token != '' }}
       shell: bash
       run: |
         set -euo pipefail
@@ -54,9 +55,9 @@ runs:
         IFS=',' read -ra LIST <<< "$SERVERS"
         COUNT=${#LIST[@]}
 
-        # Choose creds (fallback to actor/token if not provided)
-        USER="${{ inputs.github_packages_user || github.actor }}"
-        PASS="${{ inputs.github_packages_token || github.token }}"
+        # Use provided creds for all servers
+        USER="${{ inputs.github_packages_user }}"
+        PASS="${{ inputs.github_packages_token }}"
 
         # Repeat user/pass COUNT times (comma-separated) to match setup-java requirements
         USERLIST="$USER"
@@ -68,9 +69,10 @@ runs:
 
         echo "server_ids=$SERVERS"           >> "$GITHUB_OUTPUT"
         echo "server_usernames=$USERLIST"    >> "$GITHUB_OUTPUT"
-        echo "server_passwords=$PASSLIST"    >> "$GITHUB_OUTPUT"    
+        echo "server_passwords=$PASSLIST"    >> "$GITHUB_OUTPUT"
 
-    - name: Configure Java & Maven
+    - name: Configure Java & Maven (with servers)
+      if: ${{ inputs.github_packages_user != '' && inputs.github_packages_token != '' }}
       uses: actions/setup-java@v4
       with:
         distribution: temurin
@@ -79,6 +81,15 @@ runs:
         server-id: ${{ steps.maven_vars.outputs.server_ids }}
         server-username: ${{ steps.maven_vars.outputs.server_usernames }}
         server-password: ${{ steps.maven_vars.outputs.server_passwords }}
+
+    # ✅ Path B: no creds provided → plain setup-java (no servers configured)
+    - name: Configure Java (no servers)
+      if: ${{ inputs.github_packages_user == '' || inputs.github_packages_token == '' }}
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java_version }}
+        cache: maven
 
     # replicate your job-level env (OWNER, REPO, GITHUB_TOKEN)
     - name: Set env
