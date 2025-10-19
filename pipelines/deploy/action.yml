@@ -12,6 +12,10 @@ inputs:
   github_token:
     description: 'GitHub token'
     required: true
+  java_version:
+    required: false
+    default: "17"
+    description: Java version
   server_ids:
     required: false
     default: ""
