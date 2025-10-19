@@ -98,6 +98,7 @@ runs:
         distribution: temurin
         java-version: ${{ inputs.java_version }}
         cache: maven
+        overwrite-settings: false
 
     # replicate your job-level env (OWNER, REPO, GITHUB_TOKEN)
     - name: Set env
