@@ -27,8 +27,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./pipelines/deploy
         with:
-          github_packages_user: ${{ secrets.GH_PACKAGES_USER }}
-          github_packages_token: ${{ secrets.GH_PACKAGES_PAT }}
           version_bump: ${{ inputs.version_bump || 'none' }}
           modules: ${{ inputs.modules }}
           github_token: ${{ secrets.GITHUB_TOKEN }}

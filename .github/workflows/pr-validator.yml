@@ -19,8 +19,6 @@ jobs:
       - name: Run PR pipeline
         uses: ./pipelines/pr-validator
         with:
-          github_packages_user: ${{ secrets.GH_PACKAGES_USER }}
-          github_packages_token: ${{ secrets.GH_PACKAGES_PAT }}
           sonar_project_key: CyborgCodeSyndicate_utilities
           sonar_org: cyborgcodesyndicate
           nvd_api_key: ${{ secrets.NVD_API_KEY }}
