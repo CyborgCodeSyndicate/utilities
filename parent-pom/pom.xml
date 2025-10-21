@@ -14,6 +14,10 @@
     <name>Cyborg Code Parent Pom</name>
 
     <properties>
+
+        <github.repo.owner>CyborgCodeSyndicate</github.repo.owner>
+        <github.repo.name>utilities</github.repo.name>
+
         <!-- Java -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -899,24 +903,22 @@
 
     <distributionManagement>
         <repository>
-            <id>github-utilities</id>
-            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/utilities</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
         </repository>
-        <repository>
-            <id>github-roa-libraries</id>
-            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/roa-libraries</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Packages Snapshot</name>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <repositories>
         <repository>
             <id>github-utilities</id>
             <name>GitHub Packages for Utilities</name>
-            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/utilities</url>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -927,7 +929,7 @@
         <repository>
             <id>github-roa-libraries</id>
             <name>GitHub Packages for ROA Libraries</name>
-            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/roa-libraries</url>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -941,7 +943,7 @@
         <pluginRepository>
             <id>github-roa-libraries</id>
             <name>GitHub Packages for Plugins</name>
-            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/roa-libraries</url>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -952,7 +954,7 @@
         <pluginRepository>
             <id>github-utilities</id>
             <name>GitHub Packages for Plugins</name>
-            <url>https://maven.pkg.github.com/CyborgCodeSyndicate/utilities</url>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
