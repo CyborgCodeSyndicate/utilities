@@ -9,6 +9,10 @@ inputs:
     description: 'Comma-separated Maven modules to deploy (optional)'
     required: false
     default: ""
+  deploy_server_id:
+    description: 'Maven <server><id> used by -DaltDeploymentRepository'
+    required: false
+    default: github
   github_token:
     description: 'GitHub token'
     required: true
@@ -178,8 +182,10 @@ runs:
           modules_flag=""
         fi
         
+        DEPLOY_ID="${{ inputs.deploy_server_id }}"
+        
         eval mvn -B $modules_flag -DskipTests \
-          -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/${OWNER}/${REPO} \
+          -DaltDeploymentRepository=${DEPLOY_ID}::default::https://maven.pkg.github.com/${OWNER}/${REPO} \
           deploy
 
     - name: Deployment summary
