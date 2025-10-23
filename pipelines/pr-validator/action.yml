@@ -60,7 +60,7 @@ runs:
 
     # === MAVEN & JAVA SETUP ===
     - name: Setup Maven Environment
-      uses: ./pipelines/shared/setup-maven
+      uses: CyborgCodeSyndicate/utilities/pipelines/shared/setup-maven@main
       with:
         java_version: ${{ inputs.java_version }}
         server_ids: ${{ inputs.server_ids }}

@@ -59,7 +59,7 @@ runs:
 
     # === MAVEN & JAVA SETUP ===
     - name: Setup Maven Environment
-      uses: ./pipelines/shared/setup-maven
+      uses: CyborgCodeSyndicate/utilities/pipelines/shared/setup-maven@main
       with:
         java_version: ${{ inputs.java_version }}
         server_ids: ${{ inputs.server_ids }}
@@ -69,7 +69,7 @@ runs:
     # === VERSION MANAGEMENT ===
     - name: Version Management
       id: version
-      uses: ./pipelines/shared/version-management
+      uses: CyborgCodeSyndicate/utilities/pipelines/shared/version-management@main
       with:
         version_bump: ${{ inputs.version_bump }}
         enforce_main_branch: true
