@@ -1,195 +1,287 @@
-name: PR Validator (composite)
-description: Build, test, scan, and report for PRs
+name: PR Validator (Composite)
+description: Comprehensive PR validation with build, test, security scan, and quality reporting
 
 inputs:
+  # SonarCloud Configuration
   sonar_project_key:
+    description: 'SonarCloud project key'
     required: true
-    description: SonarCloud project key
   sonar_org:
+    description: 'SonarCloud organization'
     required: true
-    description: SonarCloud organization
-  nvd_api_key:
-    required: true
-    description: NVD API key (OWASP Dependency-Check)
   sonar_token:
+    description: 'SonarCloud authentication token'
     required: true
-    description: SonarCloud token
+
+  # Security Scanning
+  nvd_api_key:
+    description: 'NVD API key for OWASP Dependency-Check'
+    required: true
+
+  # Authentication
   github_token:
+    description: 'GitHub token for PR comments and API access'
     required: true
-    description: GitHub token (for PR comments)
-  java_version:
-    required: false
-    default: "17"
-    description: Java version
-  server_ids:
-    required: false
-    default: ""
   github_packages_user:
+    description: 'GitHub Packages username (optional, for external dependencies)'
     required: false
   github_packages_token:
+    description: 'GitHub Packages token (optional, for external dependencies)'
     required: false
+
+  # Environment Configuration
+  java_version:
+    description: 'Java version to use'
+    required: false
+    default: "17"
+  server_ids:
+    description: 'Additional Maven server IDs to configure (comma-separated)'
+    required: false
+    default: ""
+
+  # Build Configuration
+  maven_profiles:
+    description: 'Maven profiles to activate during build'
+    required: false
+    default: "pr-validator"
+  skip_tests:
+    description: 'Skip test execution (not recommended)'
+    required: false
+    default: "false"
 
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v4
+    # === INITIALIZATION ===
+    - name: Checkout Repository
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0
+        fetch-depth: 0  # Full history for better code analysis
 
-    - name: Configure Java & Maven (with servers)
-      if: ${{ inputs.github_packages_user != '' && inputs.github_packages_token != '' }}
-      shell: bash
-      run: |
-        set -euo pipefail
-        
-        # Compute server list (but NOT credentials)
-        DEFAULT="github-utilities"
-        EXTRAS="${{ inputs.server_ids }}"
-        
-        SERVERS="$DEFAULT"
-        if [ -n "$EXTRAS" ]; then
-          IFS=',' read -ra ARR <<< "$EXTRAS"
-          for raw in "${ARR[@]}"; do
-            id="$(echo "$raw" | xargs)"
-            [ -z "$id" ] && continue
-            [ "$id" = "$DEFAULT" ] && continue
-            SERVERS="$SERVERS,$id"
-          done
-        fi
-        
-        echo "📋 Server IDs to configure: $SERVERS"
-        
-        # Count servers for credential repetition
-        IFS=',' read -ra LIST <<< "$SERVERS"
-        COUNT=${#LIST[@]}
-        
-        # Create settings.xml directly with proper authentication
-        mkdir -p ~/.m2
-        
-        cat > ~/.m2/settings.xml << 'EOF'
-        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
-          <servers>
-        EOF
-        
-        # Add server configuration for each server ID
-        for server in "${LIST[@]}"; do
-          cat >> ~/.m2/settings.xml << EOF
-            <server>
-              <id>${server}</id>
-              <username>${MAVEN_USERNAME}</username>
-              <password>${MAVEN_PASSWORD}</password>
-            </server>
-        EOF
-        done
-        
-        cat >> ~/.m2/settings.xml << 'EOF'
-          </servers>
-        </settings>
-        EOF
-        
-        echo "✅ Created settings.xml with ${COUNT} server configuration(s)"
-        echo "Configured servers:"
-        grep "<id>" ~/.m2/settings.xml | sed 's/.*<id>\(.*\)<\/id>.*/  - \1/'
-      env:
-        MAVEN_USERNAME: ${{ inputs.github_packages_user }}
-        MAVEN_PASSWORD: ${{ inputs.github_packages_token }}
-
-    - name: Configure Java (no servers)
-      uses: actions/setup-java@v4
+    # === MAVEN & JAVA SETUP ===
+    - name: Setup Maven Environment
+      uses: ./pipelines/shared/setup-maven
       with:
-        distribution: temurin
-        java-version: ${{ inputs.java_version }}
-        cache: maven
-        overwrite-settings: false
+        java_version: ${{ inputs.java_version }}
+        server_ids: ${{ inputs.server_ids }}
+        github_packages_user: ${{ inputs.github_packages_user }}
+        github_packages_token: ${{ inputs.github_packages_token }}
 
-
-    - name: Build & Verify
+    # === BUILD & TEST ===
+    - name: Build and Verify Project
       id: build
       shell: bash
       run: |
         set -e
-        mvn -B clean verify \
-          -Ppr-validator \
-          -Dnvd.api.key="${{ inputs.nvd_api_key }}" \
-          --no-transfer-progress
+        
+        echo "🔨 Starting build and verification process"
+        echo "📋 Configuration:"
+        echo "   Profiles: ${{ inputs.maven_profiles }}"
+        echo "   Skip tests: ${{ inputs.skip_tests }}"
+        
+        # Build Maven command
+        BUILD_CMD="mvn -B clean verify"
+        
+        # Add profiles if specified
+        if [[ -n "${{ inputs.maven_profiles }}" ]]; then
+          BUILD_CMD="$BUILD_CMD -P${{ inputs.maven_profiles }}"
+        fi
+        
+        # Add NVD API key for dependency check
+        BUILD_CMD="$BUILD_CMD -Dnvd.api.key=\"${{ inputs.nvd_api_key }}\""
+        
+        # Skip tests if requested (not recommended for PR validation)
+        if [[ "${{ inputs.skip_tests }}" == "true" ]]; then
+          BUILD_CMD="$BUILD_CMD -DskipTests"
+          echo "⚠️ WARNING: Tests are being skipped!"
+        fi
+        
+        # Execute build
+        eval $BUILD_CMD --no-transfer-progress
+        
+        echo "✅ Build and verification completed successfully"
 
-    - name: Unit tests → GitHub
+    # === TEST REPORTING ===
+    - name: Publish Test Results
       if: always()
       uses: dorny/test-reporter@v2
       with:
-        name: Unit Tests
+        name: Unit Test Results
         path: '**/target/surefire-reports/*.xml'
         reporter: java-junit
         max-annotations: 0
         fail-on-error: false
-        comment-title: "Unit Test Results"
+        comment-title: "🧪 Unit Test Results"
         comment-mode: summary
 
-    - name: Merge SARIF files
+    # === SECURITY SCANNING ===
+    - name: Process Security Scan Results
+      id: security_scans
       shell: bash
       run: |
         set -e
-        mkdir -p sarif-merge
-        merge() {
-          pattern="$1"; out="$2"
-          mapfile -t files < <(find . -path "$pattern")
-          [[ ${#files[@]} -eq 0 ]] && { echo "No matches for $pattern"; return; }
-          jq -s '{version:"2.1.0", runs:(map(.runs) | add)}' "${files[@]}" \
-            > "sarif-merge/$out"
-          echo "Merged ${#files[@]} → sarif-merge/$out"
+        
+        echo "🔍 Processing security scan results"
+        
+        # Create directory for merged SARIF files
+        mkdir -p sarif-reports
+        
+        # Function to merge SARIF files
+        merge_sarif_files() {
+          local pattern="$1"
+          local output="$2"
+          local description="$3"
+        
+          echo "📄 Merging $description files..."
+        
+          # Find matching files
+          mapfile -t files < <(find . -path "$pattern" 2>/dev/null)
+        
+          if [[ ${#files[@]} -eq 0 ]]; then
+            echo "   ⚠️ No $description files found"
+            return 1
+          fi
+        
+          # Merge files using jq
+          jq -s '{
+            version: "2.1.0",
+            runs: (map(.runs) | add)
+          }' "${files[@]}" > "sarif-reports/$output"
+        
+          echo "   ✅ Merged ${#files[@]} file(s) → sarif-reports/$output"
+          return 0
         }
-        merge '*/target/spotbugs/spotbugs*.sarif' spotbugs-merged.sarif
-        merge '*/dependency-check-report.sarif'    dc-merged.sarif
+        
+        # Merge SpotBugs/FindSecBugs results
+        SPOTBUGS_FOUND="false"
+        if merge_sarif_files '*/target/spotbugs/spotbugs*.sarif' 'spotbugs-merged.sarif' 'SpotBugs'; then
+          SPOTBUGS_FOUND="true"
+        fi
+        
+        # Merge OWASP Dependency-Check results
+        OWASP_FOUND="false"
+        if merge_sarif_files '*/dependency-check-report.sarif' 'dependency-check-merged.sarif' 'OWASP Dependency-Check'; then
+          OWASP_FOUND="true"
+        fi
+        
+        # Set outputs for conditional uploads
+        echo "spotbugs_found=$SPOTBUGS_FOUND" >> "$GITHUB_OUTPUT"
+        echo "owasp_found=$OWASP_FOUND" >> "$GITHUB_OUTPUT"
 
-    - name: Upload SpotBugs SARIF
-      if: ${{ github.event.repository.private == false }}
+    - name: Upload SpotBugs Results to GitHub Security
+      # Only upload for public repos and if SARIF exists
+      if: ${{ github.event.repository.private == false && steps.security_scans.outputs.spotbugs_found == 'true' }}
       uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: sarif-merge/spotbugs-merged.sarif
+        sarif_file: sarif-reports/spotbugs-merged.sarif
+        category: spotbugs
 
-    - name: Upload Dependency-Check SARIF
-      if: ${{ github.event.repository.private == false }}
+    - name: Upload Dependency-Check Results to GitHub Security
+      # Only upload for public repos and if SARIF exists
+      if: ${{ github.event.repository.private == false && steps.security_scans.outputs.owasp_found == 'true' }}
       uses: github/codeql-action/upload-sarif@v3
       with:
-        sarif_file: sarif-merge/dc-merged.sarif
+        sarif_file: sarif-reports/dependency-check-merged.sarif
+        category: dependency-check
 
-    - name: JaCoCo coverage → PR comment
+    # === CODE COVERAGE ===
+    - name: Publish Code Coverage Report
       uses: madrapps/jacoco-report@v1.7.2
       with:
         paths: '**/target/site/jacoco/ut/jacoco.xml'
         token: ${{ inputs.github_token }}
         min-coverage-overall: 90
         min-coverage-changed-files: 90
-        comment-type: both
+        comment-title: '📊 Code Coverage Report'
+        comment-mode: both
 
-    - name: SonarCloud scan
+    # === SONARCLOUD ANALYSIS ===
+    - name: SonarCloud Quality Gate
       id: sonar
       shell: bash
       run: |
         set -e
-        mvn -B sonar:sonar -Ppr-validator \
+        
+        echo "☁️ Running SonarCloud analysis"
+        echo "📋 Configuration:"
+        echo "   Project: ${{ inputs.sonar_project_key }}"
+        echo "   Organization: ${{ inputs.sonar_org }}"
+        
+        mvn -B sonar:sonar \
+          -P${{ inputs.maven_profiles }} \
           -Dsonar.projectKey=${{ inputs.sonar_project_key }} \
           -Dsonar.organization=${{ inputs.sonar_org }} \
           -Dsonar.token=${{ inputs.sonar_token }} \
           -Dsonar.qualitygate.wait=true \
-          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.host.url=https://sonarcloud.io \
+          --no-transfer-progress
+        
+        echo "✅ SonarCloud analysis completed successfully"
 
-    - name: Write PR summary
+    # === SUMMARY REPORTING ===
+    - name: Generate PR Validation Summary
+      if: always()
       shell: bash
       run: |
+        # Determine build status emoji
+        if [[ "${{ steps.build.outcome }}" == "success" ]]; then
+          BUILD_STATUS="✅ Passed"
+        else
+          BUILD_STATUS="❌ Failed"
+        fi
+        
+        # Determine Sonar status emoji
+        if [[ "${{ steps.sonar.outcome }}" == "success" ]]; then
+          SONAR_STATUS="✅ Passed"
+        elif [[ "${{ steps.sonar.outcome }}" == "skipped" ]]; then
+          SONAR_STATUS="⏭️ Skipped"
+        else
+          SONAR_STATUS="❌ Failed"
+        fi
+        
+        # Create comprehensive summary
         {
-          echo "## ⏱️ PR Quality-Gate Summary"
+          echo "# 🔍 PR Quality Gate Summary"
           echo ""
-          echo "| Check | Status | View |"
-          echo "|-------|--------|------|"
-          echo "| **Unit Tests** | ${{ steps.build.outcome }} | see *Checks* tab |"
+          echo "## 📊 Validation Results"
+          echo ""
+          echo "| Check | Status | Details |"
+          echo "|-------|--------|---------|"
+          echo "| **Build & Compile** | $BUILD_STATUS | Maven build verification |"
+          echo "| **Unit Tests** | See report | View in *Checks* tab |"
+          echo "| **Code Coverage** | See comment | JaCoCo report in PR comments |"
+        
+          # Add security scan results for public repos
           if [[ "${{ github.event.repository.private }}" == "false" ]]; then
-            echo "| **SpotBugs / FindSecBugs** | uploaded SARIF | *Security → Code scanning* |"
-            echo "| **OWASP Dependency-Check** | uploaded SARIF | *Security → Code scanning* |"
+            if [[ "${{ steps.security_scans.outputs.spotbugs_found }}" == "true" ]]; then
+              echo "| **SpotBugs/FindSecBugs** | ✅ Uploaded | View in *Security → Code scanning* |"
+            else
+              echo "| **SpotBugs/FindSecBugs** | ⚠️ No results | No issues found or not configured |"
+            fi
+        
+            if [[ "${{ steps.security_scans.outputs.owasp_found }}" == "true" ]]; then
+              echo "| **OWASP Dependency Check** | ✅ Uploaded | View in *Security → Code scanning* |"
+            else
+              echo "| **OWASP Dependency Check** | ⚠️ No results | No vulnerabilities found or not configured |"
+            fi
+          else
+            echo "| **Security Scans** | ⏭️ Skipped | Not available for private repositories |"
           fi
-          echo "| **JaCoCo Coverage** | see PR comment | via *jacoco-report* |"
-          echo "| **SonarCloud Quality Gate** | ${{ steps.sonar.outcome }} | https://sonarcloud.io/dashboard?id=${{ inputs.sonar_project_key }} |"
+        
+          echo "| **SonarCloud Quality Gate** | $SONAR_STATUS | [View Dashboard](https://sonarcloud.io/dashboard?id=${{ inputs.sonar_project_key }}) |"
+          echo ""
+          echo "## 📝 Configuration"
+          echo ""
+          echo "- **Java Version**: ${{ inputs.java_version }}"
+          echo "- **Maven Profiles**: ${{ inputs.maven_profiles }}"
+          echo "- **Repository Type**: $([[ "${{ github.event.repository.private }}" == "true" ]] && echo "Private" || echo "Public")"
+          echo ""
+          echo "## 🔗 Quick Links"
+          echo ""
+          echo "- [SonarCloud Dashboard](https://sonarcloud.io/dashboard?id=${{ inputs.sonar_project_key }})"
+          echo "- [GitHub Security Alerts](/${{ github.repository }}/security/code-scanning)"
+          echo "- [Test Results](#checks)"
+          echo ""
+          echo "---"
+          echo "*Generated by PR Validator Composite Action*"
         } >> "$GITHUB_STEP_SUMMARY"

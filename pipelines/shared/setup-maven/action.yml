@@ -1,0 +1,116 @@
+name: Setup Maven Environment
+description: Common setup for Java and Maven with GitHub Packages authentication
+
+inputs:
+  java_version:
+    description: 'Java version to use'
+    required: false
+    default: "17"
+  server_ids:
+    description: 'Comma-separated list of Maven server IDs to configure'
+    required: false
+    default: ""
+  github_packages_user:
+    description: 'GitHub Packages username for authentication'
+    required: false
+  github_packages_token:
+    description: 'GitHub Packages token for authentication'
+    required: false
+  cache_enabled:
+    description: 'Enable Maven cache'
+    required: false
+    default: "true"
+
+outputs:
+  servers_configured:
+    description: 'List of configured Maven servers'
+    value: ${{ steps.maven_auth.outputs.servers }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure Maven Authentication
+      id: maven_auth
+      if: ${{ inputs.github_packages_user != '' && inputs.github_packages_token != '' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        
+        # Function to add server to list if not already present
+        add_server() {
+          local id="$1"
+          local list="$2"
+        
+          [[ -z "$id" ]] && echo "$list" && return
+        
+          if [[ -z "$list" ]]; then
+            echo "$id"
+          elif [[ "$list" != *"$id"* ]]; then
+            echo "$list,$id"
+          else
+            echo "$list"
+          fi
+        }
+        
+        # Build server list starting with default
+        DEFAULT_SERVER="github-utilities"
+        SERVERS="$DEFAULT_SERVER"
+        
+        # Add additional servers from input
+        if [[ -n "${{ inputs.server_ids }}" ]]; then
+          IFS=',' read -ra EXTRA_SERVERS <<< "${{ inputs.server_ids }}"
+          for raw_server in "${EXTRA_SERVERS[@]}"; do
+            server_id="$(echo "$raw_server" | xargs)"  # Trim whitespace
+            SERVERS=$(add_server "$server_id" "$SERVERS")
+          done
+        fi
+        
+        echo "📋 Configuring Maven servers: $SERVERS"
+        echo "servers=$SERVERS" >> "$GITHUB_OUTPUT"
+        
+        # Create Maven settings.xml with authentication
+        mkdir -p ~/.m2
+        
+        cat > ~/.m2/settings.xml << 'XML_HEADER'
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+          <servers>
+        XML_HEADER
+        
+        # Add server configurations
+        IFS=',' read -ra SERVER_ARRAY <<< "$SERVERS"
+        for server_id in "${SERVER_ARRAY[@]}"; do
+          cat >> ~/.m2/settings.xml << XML_SERVER
+            <server>
+              <id>${server_id}</id>
+              <username>${MAVEN_USERNAME}</username>
+              <password>${MAVEN_PASSWORD}</password>
+            </server>
+        XML_SERVER
+        done
+        
+        cat >> ~/.m2/settings.xml << 'XML_FOOTER'
+          </servers>
+        </settings>
+        XML_FOOTER
+        
+        # Log configuration summary
+        SERVER_COUNT=${#SERVER_ARRAY[@]}
+        echo "✅ Configured $SERVER_COUNT Maven server(s)"
+        echo "📝 Server IDs:"
+        for server_id in "${SERVER_ARRAY[@]}"; do
+          echo "   - $server_id"
+        done
+      env:
+        MAVEN_USERNAME: ${{ inputs.github_packages_user }}
+        MAVEN_PASSWORD: ${{ inputs.github_packages_token }}
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java_version }}
+        cache: ${{ inputs.cache_enabled == 'true' && 'maven' || '' }}
+        overwrite-settings: false
