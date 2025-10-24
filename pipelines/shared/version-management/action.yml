@@ -117,5 +117,6 @@ runs:
         echo "📝 Updating pom.xml to version: ${{ steps.compute.outputs.next }}"
         mvn -B versions:set \
           -DnewVersion=${{ steps.compute.outputs.next }} \
+          -DprocessAllModules=true \
           -DgenerateBackupPoms=false \
           --no-transfer-progress
