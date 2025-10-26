@@ -105,6 +105,7 @@
         <spotbugs-maven-plugin.excludeFilterFile>io/cyborgcode/static-data/spotbugs-exclude.xml
         </spotbugs-maven-plugin.excludeFilterFile>
         <shared-static-data.version>${project.version}</shared-static-data.version>
+        <nashorn-core.version>15.7</nashorn-core.version>
     </properties>
 
     <dependencyManagement>
@@ -399,6 +400,13 @@
                 <artifactId>jna</artifactId>
                 <version>${jna.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.openjdk.nashorn</groupId>
+                <artifactId>nashorn-core</artifactId>
+                <version>${nashorn-core.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
