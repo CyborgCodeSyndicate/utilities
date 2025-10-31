@@ -558,7 +558,6 @@
                         <skip>false</skip>
                         <show>protected</show>
                         <source>${java.version}</source>
-                        <defaultAuthor>Cyborg Code Syndicate</defaultAuthor>
                         <linksource>true</linksource>
                         <doclint>none</doclint>
                         <encoding>${project.build.sourceEncoding}</encoding>
@@ -965,12 +964,23 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>github-roa-plugins</id>
+            <name>GitHub Packages for ROA Plugins</name>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
             <id>github-roa-libraries</id>
-            <name>GitHub Packages for Plugins</name>
+            <name>GitHub Packages for ROA Libraries</name>
             <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
             <releases>
                 <enabled>true</enabled>
@@ -981,7 +991,18 @@
         </pluginRepository>
         <pluginRepository>
             <id>github-utilities</id>
-            <name>GitHub Packages for Plugins</name>
+            <name>GitHub for ROA Utilities</name>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>github-roa-plugins</id>
+            <name>GitHub Packages for ROA Plugins</name>
             <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
             <releases>
                 <enabled>true</enabled>
