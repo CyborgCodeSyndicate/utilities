@@ -1003,7 +1003,7 @@
         <pluginRepository>
             <id>github-roa-plugins</id>
             <name>GitHub Packages for ROA Plugins</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
