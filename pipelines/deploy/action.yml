@@ -183,7 +183,7 @@ runs:
           echo "To use this version in your Maven project:"
           echo "\`\`\`xml"
           echo "<dependency>"
-          echo "  <groupId>com.cyborgcodesyndicate</groupId>"
+          echo "  <groupId>io.cyborgcode.GROUP_ID_SUFFIX</groupId>"
           echo "  <artifactId>YOUR_ARTIFACT_ID</artifactId>"
           echo "  <version>${{ steps.version.outputs.next_version }}</version>"
           echo "</dependency>"
