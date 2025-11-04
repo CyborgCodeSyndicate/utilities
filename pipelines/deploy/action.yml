@@ -80,15 +80,15 @@ runs:
       shell: bash
       run: |
         set -e
-        
+
         VERSION="${{ steps.version.outputs.next_version }}"
-        
+
         echo "🏷️ Creating release commit and tag for version: $VERSION"
-        
+
         # Configure Git
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
-        
+
         # Commit version changes
         git add -A
         if git diff-index --quiet HEAD --; then
@@ -97,11 +97,11 @@ runs:
           git commit -m "chore(release): $VERSION"
           echo "✅ Created release commit"
         fi
-        
+
         # Create and push tag
-        git tag "v$VERSION"
-        git push --follow-tags
-        
+        git tag -a "v$VERSION" -m "Release v$VERSION"
+        git push --atomic origin HEAD "refs/tags/v$VERSION"
+
         echo "✅ Pushed release tag: v$VERSION"
 
     # === DEPLOYMENT ===
