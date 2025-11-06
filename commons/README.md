@@ -17,8 +17,6 @@
   - [Implementation scanning](#implementation-scanning)
   - [Field access helpers](#field-access-helpers)
 - [Configuration helpers](#configuration-helpers)
-- [Local development](#local-development)
-- [Versioning](#versioning)
 - [Author](#author)
 
 ## Overview
@@ -221,16 +219,6 @@ AppConfig config = ConfigFactory.create(AppConfig.class);
 ```
 
 `@ConfigSource` gives you a canonical identifier for wiring or documentation, while `PropertyConfig` keeps all configs aligned on the Owner `Config` interface.
-
-## Local development
-
-- Build or verify locally with `mvn verify`.
-- Run the focused tests for this module with `mvn test -pl commons`.
-- SpotBugs, unit tests, and coverage configurations live in the parent and run automatically through the Maven lifecycle.
-
-## Versioning
-
-The module inherits Java version, dependency versions, and plugin management from the `parent-pom`. Use the same released version as the rest of the utilities stack to stay compatible.
 
 ## Author
 **Cyborg Code Syndicate 💍👨💻**
