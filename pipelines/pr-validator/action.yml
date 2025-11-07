@@ -120,50 +120,60 @@ runs:
       shell: bash
       run: |
         set -e
-        
+
         echo "🔍 Processing security scan results"
-        
+
         # Create directory for merged SARIF files
         mkdir -p sarif-reports
-        
-        # Function to merge SARIF files
+
+        # Ensure npx / sarif-multitool are available
+        if ! command -v npx >/dev/null 2>&1; then
+          echo "❌ npx is not available on this runner. Cannot merge SARIF files."
+          exit 1
+        fi
+
+        # Function to merge SARIF files into a single run
         merge_sarif_files() {
           local pattern="$1"
           local output="$2"
           local description="$3"
-        
-          echo "📄 Merging $description files..."
-        
+
+          echo "📄 Merging $description SARIF files..."
+
           # Find matching files
           mapfile -t files < <(find . -path "$pattern" 2>/dev/null)
-        
+
           if [[ ${#files[@]} -eq 0 ]]; then
-            echo "   ⚠️ No $description files found"
+            echo "   ⚠️ No $description SARIF files found"
             return 1
           fi
-        
-          # Merge files using jq
-          jq -s '{
-            version: "2.1.0",
-            runs: (map(.runs) | add)
-          }' "${files[@]}" > "sarif-reports/$output"
-        
-          echo "   ✅ Merged ${#files[@]} file(s) → sarif-reports/$output"
+
+          echo "   Found ${#files[@]} file(s):"
+          printf '      %s\n' "${files[@]}"
+
+          # Merge into a single run using SARIF Multitool
+          npx --yes @microsoft/sarif-multitool@latest merge \
+            --merge-runs \
+            --force \
+            --output-file "sarif-reports/$output" \
+            "${files[@]}"
+
+          echo "   ✅ Merged into sarif-reports/$output"
           return 0
         }
-        
+
         # Merge SpotBugs/FindSecBugs results
         SPOTBUGS_FOUND="false"
         if merge_sarif_files '*/target/spotbugs/spotbugs*.sarif' 'spotbugs-merged.sarif' 'SpotBugs'; then
           SPOTBUGS_FOUND="true"
         fi
-        
+
         # Merge OWASP Dependency-Check results
         OWASP_FOUND="false"
         if merge_sarif_files '*/dependency-check-report.sarif' 'dependency-check-merged.sarif' 'OWASP Dependency-Check'; then
           OWASP_FOUND="true"
         fi
-        
+
         # Set outputs for conditional uploads
         echo "spotbugs_found=$SPOTBUGS_FOUND" >> "$GITHUB_OUTPUT"
         echo "owasp_found=$OWASP_FOUND" >> "$GITHUB_OUTPUT"
