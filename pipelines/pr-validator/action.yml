@@ -122,6 +122,7 @@ runs:
         set -e
 
         echo "🔍 Processing security scan results"
+        echo "📂 Working directory: $(pwd)"
 
         # Create directory for merged SARIF files
         mkdir -p sarif-reports
@@ -151,11 +152,33 @@ runs:
           echo "   Found ${#files[@]} file(s):"
           printf '      %s\n' "${files[@]}"
 
-          # Merge into a single run using SARIF Multitool
+          # Clean any previous default output from sarif-multitool
+          rm -f merged.sarif
+
+          # Merge into a single run using SARIF Multitool.
+          # We let it write to the default "merged.sarif" in the current dir.
           npx --yes @microsoft/sarif-multitool@latest merge \
             --merge-runs \
-            --output-file "sarif-reports/$output" \
             "${files[@]}"
+
+          echo "   ▶ After merge, checking for merged.sarif"
+          if [[ ! -f "merged.sarif" ]]; then
+            echo "❌ sarif-multitool reported success, but merged.sarif is missing."
+            echo "   Debug listing of current directory:"
+            ls -la
+            return 1
+          fi
+
+          # Move to the desired sarif-reports/<output> path
+          mv merged.sarif "sarif-reports/$output"
+
+          echo "   ▶ Checking final path: sarif-reports/$output"
+          if [[ ! -f "sarif-reports/$output" ]]; then
+            echo "❌ Failed to move merged.sarif to sarif-reports/$output"
+            echo "   Debug listing of sarif-reports:"
+            ls -la sarif-reports || echo "   (sarif-reports directory not found)"
+            return 1
+          fi
 
           echo "   ✅ Merged into sarif-reports/$output"
           return 0
@@ -169,9 +192,12 @@ runs:
 
         # Merge OWASP Dependency-Check results
         OWASP_FOUND="false"
-        if merge_sarif_files '*/dependency-check-report.sarif' 'dependency-check-merged.sarif' 'OWASP Dependency-Check'; then
+        if merge_sarif_files '*/target/dependency-check-report/dependency-check-report.sarif' 'dependency-check-merged.sarif' 'OWASP Dependency-Check'; then
           OWASP_FOUND="true"
         fi
+
+        echo "▶ Contents of sarif-reports after merge:"
+        ls -la sarif-reports || echo "   (sarif-reports is empty or missing)"
 
         # Set outputs for conditional uploads
         echo "spotbugs_found=$SPOTBUGS_FOUND" >> "$GITHUB_OUTPUT"
