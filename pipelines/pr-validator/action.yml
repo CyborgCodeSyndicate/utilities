@@ -154,7 +154,6 @@ runs:
           # Merge into a single run using SARIF Multitool
           npx --yes @microsoft/sarif-multitool@latest merge \
             --merge-runs \
-            --force \
             --output-file "sarif-reports/$output" \
             "${files[@]}"
 
