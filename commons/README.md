@@ -85,7 +85,7 @@ LogCommon.extended("Raw response: {}", rawBody);
 | Level | Priority | When to use |
 | --- | --- | --- |
 | `STEP` | 350 | Trace human-readable progress (especially in tests). |
-| `VALIDATION` | 350 | Highlight assertion or verification outcomes (available when you extend `LogCore`). |
+| `VALIDATION` | 350 | Highlight assertion or verification outcomes  (available via `validationLog()` when extending `LogCore`). |
 | `EXTENDED` | 450 | Verbose diagnostics gated behind `extended.logging=true`. |
 
 All custom levels still participate in the same marker-driven logging pipeline.
