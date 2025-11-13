@@ -111,8 +111,6 @@ runs:
         reporter: java-junit
         max-annotations: 0
         fail-on-error: false
-        comment-title: "🧪 Unit Test Results"
-        comment-mode: summary
 
     # === SECURITY SCANNING ===
     - name: Process Security Scan Results
@@ -192,8 +190,9 @@ runs:
         token: ${{ inputs.github_token }}
         min-coverage-overall: 90
         min-coverage-changed-files: 90
-        comment-title: '📊 Code Coverage Report'
-        comment-mode: both
+        title: '📊 Code Coverage Report'
+        comment-type: both
+        update-comment: true
 
     # === SONARCLOUD ANALYSIS ===
     - name: SonarCloud Quality Gate
