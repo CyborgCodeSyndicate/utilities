@@ -97,7 +97,7 @@ Two JVM system properties gate noisy output:
 - `silent.mode` (default `false`): when `true`, suppresses warn/error/debug/trace/step/validation/extended logs.
 - `extended.logging` (default `false`): when `true`, allows `LogCommon.extended(...)` to emit.
 
-Enable them via JVM args:
+Enable them via JVM args: 
 
 ```bash
 -Dsilent.mode=true -Dextended.logging=true
