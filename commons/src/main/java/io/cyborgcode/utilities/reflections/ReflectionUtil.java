@@ -2,11 +2,20 @@ package io.cyborgcode.utilities.reflections;
 
 import io.cyborgcode.utilities.reflections.exceptions.ReflectionException;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import org.reflections.Reflections;
+import org.reflections.scanners.Scanner;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 /**
  * Utility class for performing advanced reflection-based operations.
@@ -27,32 +36,159 @@ import org.reflections.Reflections;
  */
 public class ReflectionUtil {
 
+   /**
+    * Base configuration template:
+    * <ul>
+    *    <li>Uses the thread context class loader (TCCL) by default.</li>
+    *    <li>Scans everything reachable from that class loader.</li>
+    *    <li>Registers SubTypes, TypesAnnotated, MethodsAnnotated, and FieldsAnnotated scanners.</li>
+    * </ul>
+    * Can be overridden from outside (e.g. in a Maven Mojo) with a custom {@link ConfigurationBuilder}.
+    */
+   private static final AtomicReference<ConfigurationBuilder> BASE_CONFIGURATION_BUILDER =
+         new AtomicReference<>(createDefaultConfiguration());
+
    private ReflectionUtil() {
    }
 
+   // -------------------------------------------------------------------------
+   // Base configuration setup / override
+   // -------------------------------------------------------------------------
 
    /**
-    * Finds all enum classes that implement a given interface within a specified package.
+    * Overrides the base {@link ConfigurationBuilder} used as a template for all scans.
     *
-    * @param interfaceClass The interface whose enum implementations are being searched for. Must not be null.
-    * @param packagePrefix  The root package to search within. Must not be null.
-    * @param <T>            The type of the interface.
-    * @return A list of enum classes that implement the specified interface.
-    * @throws ReflectionException If no matching enum classes are found or if the search fails.
+    * <p>Typical usage from a Maven plugin:
+    * <ul>
+    *    <li>Build a {@code ConfigurationBuilder} with the project classloader(s).</li>
+    *    <li>Call this method once at startup.</li>
+    * </ul>
+    *
+    * @param baseConfigurationBuilder configuration to use as the new base template (must not be {@code null})
+    * @throws IllegalArgumentException if {@code baseConfigurationBuilder} is {@code null}
+    */
+   public static void setBaseConfigurationBuilder(ConfigurationBuilder baseConfigurationBuilder) {
+      if (baseConfigurationBuilder == null) {
+         throw new IllegalArgumentException("ConfigurationBuilder cannot be null.");
+      }
+      BASE_CONFIGURATION_BUILDER.set(baseConfigurationBuilder);
+   }
+
+   /**
+    * Returns the current base {@link ConfigurationBuilder} reference.
+    *
+    * <p>Note: the returned builder is shared; callers should treat it as read-only and
+    * prefer to copy its settings instead of mutating it directly.
+    *
+    * @return the current base configuration builder
+    */
+   public static ConfigurationBuilder getBaseConfigurationBuilder() {
+      return BASE_CONFIGURATION_BUILDER.get();
+   }
+
+   /**
+    * Creates the default {@link ConfigurationBuilder} used when the user does not override it.
+    * <ul>
+    *    <li>Uses the thread context class loader (TCCL).</li>
+    *    <li>Registers all relevant scanners.</li>
+    *    <li>Adds URLs for the entire classpath of that loader.</li>
+    * </ul>
+    *
+    * @return a new default configuration builder
+    */
+   private static ConfigurationBuilder createDefaultConfiguration() {
+      ClassLoader cl = Thread.currentThread().getContextClassLoader();
+
+      ConfigurationBuilder builder = new ConfigurationBuilder()
+            .addClassLoaders(cl != null ? new ClassLoader[] {cl} : new ClassLoader[0])
+            .addUrls(ClasspathHelper.forClassLoader(cl))
+            .setScanners(
+                  Scanners.SubTypes,
+                  Scanners.TypesAnnotated,
+                  Scanners.MethodsAnnotated,
+                  Scanners.FieldsAnnotated
+            )
+            .addUrls(urlsFromClassLoader(cl));
+
+      if (cl != null) {
+         builder.addUrls(ClasspathHelper.forClassLoader(cl));
+      }
+
+      return builder;
+   }
+
+   /**
+    * Collects classpath URLs for the given class loader, falling back to the full
+    * {@code java.class.path} if no URLs are found.
+    *
+    * <p>Duplicate URLs are removed using their external form.
+    *
+    * @param cl class loader to inspect (may be {@code null})
+    * @return a de-duplicated list of URLs to scan
+    */
+   private static List<URL> urlsFromClassLoader(ClassLoader cl) {
+      List<URL> result = new ArrayList<>();
+      Set<String> seen = new LinkedHashSet<>();
+
+      for (URL url : ClasspathHelper.forClassLoader(cl)) {
+         addIfNotSeen(url, seen, result);
+      }
+
+      if (result.isEmpty()) {
+         for (URL url : ClasspathHelper.forJavaClassPath()) {
+            addIfNotSeen(url, seen, result);
+         }
+      }
+
+      return result;
+   }
+
+   /**
+    * Adds the URL to the result list if it has not been seen yet, using the URL's
+    * external form for equality.
+    *
+    * @param url   URL candidate
+    * @param seen  set of already processed URL keys
+    * @param result target list for unique URLs
+    */
+   private static void addIfNotSeen(URL url, Set<String> seen, List<URL> result) {
+      // Use external form (or URI) to deduplicate, *not* URL.equals/hashCode
+      String key = url.toExternalForm();
+      if (seen.add(key)) {
+         result.add(url);
+      }
+   }
+
+   // -------------------------------------------------------------------------
+   // Public API (with String... packagePrefixes)
+   // -------------------------------------------------------------------------
+
+   /**
+    * Finds all enum classes that implement a given interface.
+    *
+    * <p>If no {@code packagePrefixes} are provided, this scans everything reachable
+    * from the base configuration. If prefixes are provided, scanning is restricted
+    * to those packages.
+    *
+    * @param interfaceClass   interface to search implementations for (must not be {@code null})
+    * @param packagePrefixes  optional package prefixes used to limit scanning
+    * @param <T>              type of the interface
+    * @return list of enum classes implementing the interface
+    * @throws IllegalArgumentException if {@code interfaceClass} is {@code null}
+    * @throws ReflectionException      if no matching enum implementations are found
     */
    @SuppressWarnings("unchecked")
    public static <T> List<Class<? extends Enum>> findEnumClassImplementationsOfInterface(
-         Class<T> interfaceClass, String packagePrefix) {
+         Class<T> interfaceClass, String... packagePrefixes) {
 
-      validateInputs(interfaceClass, packagePrefix);
+      validateInputs(interfaceClass);
 
-      Reflections reflections = new Reflections(packagePrefix);
+      Reflections reflections = createReflections(packagePrefixes);
       Set<Class<? extends T>> result = reflections.getSubTypesOf(interfaceClass);
 
       List<Class<? extends Enum>> listOfEnumClasses = new ArrayList<>();
       for (Class<? extends T> cls : result) {
          if (cls.isEnum()) {
-            @SuppressWarnings("unchecked")
             Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) cls;
             listOfEnumClasses.add(enumClass);
          }
@@ -60,8 +196,8 @@ public class ReflectionUtil {
 
       if (listOfEnumClasses.isEmpty()) {
          throw new ReflectionException(String.format(
-               "No Enum implementing interface '%s' found in package '%s'.",
-               interfaceClass.getName(), packagePrefix));
+               "No Enum implementing interface '%s' found in packages '%s'.",
+               interfaceClass.getName(), Arrays.toString(packagePrefixes)));
       }
       return listOfEnumClasses;
    }
@@ -69,27 +205,34 @@ public class ReflectionUtil {
    /**
     * Finds a specific enum constant that implements a given interface.
     *
-    * @param interfaceClass The interface implemented by the enum.
-    * @param enumName       The name of the enum constant.
-    * @param packagePrefix  The package to search within.
-    * @param <T>            The type of the interface.
-    * @return The matching enum constant.
-    * @throws ReflectionException If the enum or constant is not found.
+    * <p>All enum classes implementing the interface (within the optional package
+    * prefixes) are scanned and the enum value with the given {@code enumName}
+    * is returned.
+    *
+    * @param interfaceClass   interface implemented by the enum constants
+    * @param enumName         name of the enum constant to find
+    * @param packagePrefixes  optional package prefixes used to limit scanning
+    * @param <T>              interface type
+    * @return the matching enum constant implementing the interface
+    * @throws IllegalArgumentException if {@code interfaceClass} or {@code enumName} is {@code null} or empty
+    * @throws ReflectionException      if the value is not found or found more than once
     */
    @SuppressWarnings("unchecked")
    public static <T> T findEnumImplementationsOfInterface(
-         Class<T> interfaceClass, String enumName, String packagePrefix) {
+         Class<T> interfaceClass, String enumName, String... packagePrefixes) {
 
       List<Class<? extends Enum>> enumClassImplementationsOfInterface =
-            findEnumClassImplementationsOfInterface(interfaceClass, packagePrefix);
+            findEnumClassImplementationsOfInterface(interfaceClass, packagePrefixes);
 
       List<? extends Enum> enumValuesList = enumClassImplementationsOfInterface.stream()
             .flatMap(enumClass -> Arrays.stream(enumClass.getEnumConstants()))
-            .filter(anEnum -> anEnum.name().equals(enumName)).toList();
+            .filter(anEnum -> anEnum.name().equals(enumName))
+            .toList();
 
       if (enumValuesList.isEmpty()) {
          throw new ReflectionException(String.format(
-               "Enum value '%s' not found in any enum class.", enumName));
+               "Enum value '%s' not found in any enum class for packages '%s'.",
+               enumName, Arrays.toString(packagePrefixes)));
       }
       if (enumValuesList.size() > 1) {
          throw new ReflectionException(String.format(
@@ -99,31 +242,41 @@ public class ReflectionUtil {
    }
 
    /**
-    * Finds all class implementations of a given interface within a package.
+    * Finds all class implementations of a given interface.
     *
-    * @param interfaceClass The interface whose implementations are to be found.
-    * @param packagePrefix  The package to search within.
-    * @param <T>            The type of the interface.
-    * @return A list of classes implementing the specified interface.
+    * <p>If no {@code packagePrefixes} are provided, this scans everything reachable
+    * from the base configuration. If prefixes are provided, scanning is restricted
+    * to those packages.
+    *
+    * @param interfaceClass   interface to search implementations for (must not be {@code null})
+    * @param packagePrefixes  optional package prefixes used to limit scanning
+    * @param <T>              type of the interface
+    * @return list of classes implementing the interface (possibly empty)
+    * @throws IllegalArgumentException if {@code interfaceClass} is {@code null}
     */
-   public static <T> List<Class<? extends T>> findImplementationsOfInterface(Class<T> interfaceClass,
-                                                                             String packagePrefix) {
-      validateInputs(interfaceClass, packagePrefix);
+   public static <T> List<Class<? extends T>> findImplementationsOfInterface(
+         Class<T> interfaceClass, String... packagePrefixes) {
 
-      Reflections reflections = new Reflections(packagePrefix);
+      validateInputs(interfaceClass);
+
+      Reflections reflections = createReflections(packagePrefixes);
       Set<Class<? extends T>> result = reflections.getSubTypesOf(interfaceClass);
       return new ArrayList<>(result);
    }
 
    /**
-    * Retrieves all field values of a specified type from an object, including fields declared in superclasses.
+    * Retrieves all field values of a specified type from an object, including fields
+    * declared in superclasses.
     *
-    * @param instance  The object whose field values are being retrieved. Must not be null.
-    * @param fieldType The expected type of the fields to retrieve. Must not be null.
-    * @param <K>       The type parameter representing the expected field value type.
-    * @return A list of field values of the specified type found in the object.
-    * @throws ReflectionException If no matching fields are found, if a field contains an incompatible value,
-    *                             or if a field cannot be accessed due to security restrictions.
+    * <p>Only fields whose type is assignable to {@code fieldType} and whose runtime
+    * value is an instance of {@code fieldType} are collected.
+    *
+    * @param instance  object to inspect (must not be {@code null})
+    * @param fieldType type of fields to extract (must not be {@code null})
+    * @param <K>       target field type
+    * @return list of matching field values
+    * @throws IllegalArgumentException if inputs are {@code null} or {@code fieldType} is empty
+    * @throws ReflectionException      if no matching fields are found or field access fails
     */
    @SuppressWarnings("java:S3011")
    public static <K> List<K> getFieldValues(Object instance, Class<K> fieldType) {
@@ -133,7 +286,6 @@ public class ReflectionUtil {
          Class<?> currentClass = instance.getClass();
          List<Field> allFields = new ArrayList<>();
 
-         // Traverse class hierarchy to collect all declared fields
          while (currentClass != null && currentClass != Object.class) {
             allFields.addAll(Arrays.asList(currentClass.getDeclaredFields()));
             currentClass = currentClass.getSuperclass();
@@ -144,7 +296,6 @@ public class ReflectionUtil {
          for (Field field : allFields) {
             field.setAccessible(true);
 
-            // Check if the declared field type is compatible
             if (fieldType.isAssignableFrom(field.getType())) {
                Object value = field.get(instance);
 
@@ -179,10 +330,64 @@ public class ReflectionUtil {
    }
 
    /**
-    * Validates input parameters, ensuring they are non-null and non-empty.
+    * Builds a {@link Reflections} instance using the current base configuration
+    * and optional package filters.
     *
-    * @param objects The objects to validate.
-    * @throws IllegalArgumentException If any parameter is invalid.
+    * <p>When no {@code packagePrefixes} are provided, the base configuration is used
+    * as-is. When prefixes are provided, a new configuration is created by copying
+    * the base settings and applying an additional package filter.
+    *
+    * @param packagePrefixes optional package prefixes used to limit scanning
+    * @return a configured {@link Reflections} instance ready for scanning
+    */
+   @SuppressWarnings("java:S2112") // Reflections API requires URL collections; no network access or URL keys here
+   private static Reflections createReflections(String... packagePrefixes) {
+      if (packagePrefixes == null || packagePrefixes.length == 0) {
+         return new Reflections(getBaseConfigurationBuilder());
+      }
+
+      ConfigurationBuilder base = getBaseConfigurationBuilder();
+      ConfigurationBuilder builder = new ConfigurationBuilder();
+
+      ClassLoader[] cls = base.getClassLoaders();
+      if (cls != null && cls.length > 0) {
+         builder.addClassLoaders(cls);
+      }
+
+      Set<Scanner> scanners = base.getScanners();
+      if (scanners != null && !scanners.isEmpty()) {
+         builder.setScanners(scanners.toArray(new Scanner[0]));
+      }
+
+      Set<URL> urls = base.getUrls();
+      if (urls != null && !urls.isEmpty()) {
+         builder.setUrls(urls);
+      }
+
+      builder.setParallel(base.isParallel());
+      builder.setExpandSuperTypes(base.shouldExpandSuperTypes());
+
+      Predicate<String> baseFilter = base.getInputsFilter(); // default: accept-all
+      FilterBuilder pkgFilter = new FilterBuilder();
+      for (String pkg : packagePrefixes) {
+         pkgFilter.includePackage(pkg);
+      }
+      builder.filterInputsBy(baseFilter.and(pkgFilter));
+
+      ClassLoader[] loaders = cls != null ? cls : new ClassLoader[0];
+      for (String pkg : packagePrefixes) {
+         builder.forPackage(pkg, loaders);
+      }
+
+      return new Reflections(builder);
+   }
+
+   /**
+    * Validates that the given objects are non-null and that any {@link String}
+    * values are not empty or blank.
+    *
+    * @param objects input parameters to validate
+    * @throws IllegalArgumentException if any object is {@code null} or any {@code String} is empty/blank
     */
    private static void validateInputs(Object... objects) {
       for (Object obj : objects) {
