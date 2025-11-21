@@ -976,6 +976,17 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+        <repository>
+            <id>github-pandora</id>
+            <name>GitHub Packages for Pandora</name>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -1005,6 +1016,17 @@
             <id>github-roa-plugins</id>
             <name>GitHub Packages for ROA Plugins</name>
             <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>github-pandora</id>
+            <name>GitHub Packages for ROA Plugins</name>
+            <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
