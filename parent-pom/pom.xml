@@ -106,6 +106,7 @@
         </spotbugs-maven-plugin.excludeFilterFile>
         <shared-static-data.version>${project.version}</shared-static-data.version>
         <nashorn-core.version>15.7</nashorn-core.version>
+        <maven-javadoc-plugin.failOnError>true</maven-javadoc-plugin.failOnError>
     </properties>
 
     <dependencyManagement>
@@ -562,7 +563,7 @@
                         <doclint>none</doclint>
                         <encoding>${project.build.sourceEncoding}</encoding>
                         <outputDirectory>${project.build.directory}/javadocs</outputDirectory>
-                        <failOnError>true</failOnError>
+                        <failOnError>${maven-javadoc-plugin.failOnError}</failOnError>
                     </configuration>
                     <executions>
                         <execution>
