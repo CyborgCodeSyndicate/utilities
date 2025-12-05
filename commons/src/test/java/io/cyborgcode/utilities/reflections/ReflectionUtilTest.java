@@ -10,6 +10,9 @@ import io.cyborgcode.utilities.reflections.mock.MockInterfaceTwoImpl;
 import io.cyborgcode.utilities.reflections.mock.TestClass;
 import io.cyborgcode.utilities.reflections.mock.TestClassWithPrivateField;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,8 +23,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -53,27 +58,27 @@ class ReflectionUtilTest {
       void shouldReturnSingleEnumClassImplementingInterface() {
          // When
          List<Class<? extends Enum>> result =
-               ReflectionUtil.findEnumClassImplementationsOfInterface(MockInterface.class, MOCK_PACKAGE);
+               ReflectionUtil.findEnumClassImplementationsOfInterface(
+                     MockInterface.class, MOCK_PACKAGE);
 
          // Then
          assertEquals(List.of(MockEnum.class), result,
                "Expected a single matching enum class that implements the interface");
       }
 
-
       @Test
       @DisplayName("Should return multiple enum classes implementing interface")
       void shouldReturnMultipleEnumClassesImplementingInterface() {
          // When
          List<Class<? extends Enum>> result =
-               ReflectionUtil.findEnumClassImplementationsOfInterface(MockInterfaceTwoImpl.class, MOCK_PACKAGE);
+               ReflectionUtil.findEnumClassImplementationsOfInterface(
+                     MockInterfaceTwoImpl.class, MOCK_PACKAGE);
 
          // Then
          Set<Class<? extends Enum<?>>> expected = Set.of(MockEnumOne.class, MockEnumTwo.class);
          assertEquals(expected, new HashSet<>(result),
                "Expected multiple matching enum classes that implement the interface");
       }
-
 
       @Test
       @DisplayName("Should throw exception when no enum implementation is found")
@@ -83,7 +88,8 @@ class ReflectionUtilTest {
 
          // When
          ReflectionException ex = assertThrows(ReflectionException.class,
-               () -> ReflectionUtil.findEnumClassImplementationsOfInterface(interfaceClass, MOCK_PACKAGE),
+               () -> ReflectionUtil.findEnumClassImplementationsOfInterface(
+                     interfaceClass, MOCK_PACKAGE),
                "Expected ReflectionException when no enum implementation found");
 
          String message = ex.getMessage();
@@ -93,26 +99,22 @@ class ReflectionUtilTest {
                () -> assertTrue(message.contains(interfaceClass.getName()),
                      "Should include the interface class name"),
                () -> assertTrue(message.contains(MOCK_PACKAGE),
-                     "Should include the searched package name"));
+                     "Should include the searched package name (inside the packages[...] fragment)")
+         );
       }
-
 
       @ParameterizedTest
-      @NullAndEmptySource
-      @ValueSource(strings = {"  ", "\t"})
-      @DisplayName("Should throw exception when package parameter is invalid for enum class search")
+      @ValueSource(strings = {"", "  ", "\t"})
+      @DisplayName("Should throw ReflectionException when package parameter does not lead to any enum matches")
       void shouldThrowOnInvalidPackageParameterForEnumSearch(String pkg) {
          // When / Then
-         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+         ReflectionException ex = assertThrows(ReflectionException.class,
                () -> ReflectionUtil.findEnumClassImplementationsOfInterface(MockInterface.class, pkg),
-               "Expected IllegalArgumentException for invalid package name");
+               "Expected ReflectionException when no enum implementations can be found for the given package");
 
-         // Checking for a substring that's definitely in the error message
-         assertTrue(ex.getMessage().contains("parameter cannot") ||
-                     ex.getMessage().contains("empty"),
-               "Should indicate an invalid or empty input parameter");
+         assertTrue(ex.getMessage().contains("No Enum implementing interface"),
+               "Should indicate that no enum implementations were found");
       }
-
 
       @Test
       @DisplayName("Should find a specific enum value implementing an interface")
@@ -125,7 +127,6 @@ class ReflectionUtilTest {
          assertEquals(MockEnum.VALUE, result,
                "Expected to find the correct enum value implementing the interface");
       }
-
 
       @Test
       @DisplayName("Should throw exception if specific enum value is not found")
@@ -140,7 +141,6 @@ class ReflectionUtilTest {
                "Should indicate the enum value was not found");
       }
 
-
       @Test
       @DisplayName("Should return correct enum value from multiple interfaces")
       void shouldReturnCorrectEnumValueFromMultipleInterfaces() {
@@ -152,7 +152,6 @@ class ReflectionUtilTest {
          assertEquals(MockEnumTwo.VALUE_2, result,
                "Expected to find the correct enum value among multiple interfaces");
       }
-
 
       @Test
       @DisplayName("Should throw exception if duplicate enum values are found")
@@ -167,19 +166,18 @@ class ReflectionUtilTest {
                "Should indicate that duplicate enum values were found");
       }
 
-
       @Test
       @DisplayName("Should throw exception when enum value is null")
       void shouldThrowExceptionWhenEnumValueIsNull() {
          // When / Then
          ReflectionException ex = assertThrows(ReflectionException.class,
-               () -> ReflectionUtil.findEnumImplementationsOfInterface(MockInterface.class, null, MOCK_PACKAGE),
+               () -> ReflectionUtil.findEnumImplementationsOfInterface(
+                     MockInterface.class, null, MOCK_PACKAGE),
                "Expected ReflectionException when the enum value is null");
 
          assertTrue(ex.getMessage().contains("Enum value 'null' not found"),
                "Should indicate that the enum value was not found");
       }
-
 
       @Test
       @DisplayName("Should throw exception when no results are found in package")
@@ -189,11 +187,9 @@ class ReflectionUtilTest {
          Class<?> interfaceClass = MockInterface.class;
 
          // When / Then
-         ReflectionException ex = assertThrows(ReflectionException.class, () ->
-                     ReflectionUtil.findEnumClassImplementationsOfInterface(
-                           interfaceClass,
-                           invalidPackage
-                     ),
+         ReflectionException ex = assertThrows(ReflectionException.class,
+               () -> ReflectionUtil.findEnumClassImplementationsOfInterface(
+                     interfaceClass, invalidPackage),
                "Expected ReflectionException when no implementations are found in an invalid package");
 
          String message = ex.getMessage();
@@ -203,8 +199,58 @@ class ReflectionUtilTest {
                () -> assertTrue(message.contains(interfaceClass.getName()),
                      "Should include the interface class name"),
                () -> assertTrue(message.contains(invalidPackage),
-                     "Should include the searched package name")
+                     "Should include the searched package name (inside packages[...] fragment)")
          );
+      }
+
+      // -------------------------------------------------------------------
+      // NEW TESTS: base configuration & varargs behavior
+      // -------------------------------------------------------------------
+
+      @Test
+      @DisplayName("Should use base configuration when no package is provided for enum search")
+      void shouldUseBaseConfigurationWhenNoPackageForEnumSearch() {
+         ConfigurationBuilder original = ReflectionUtil.getBaseConfigurationBuilder();
+         try {
+            // Given: base config restricted to MOCK_PACKAGE
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            ConfigurationBuilder builder = new ConfigurationBuilder()
+                  .addClassLoaders(cl)
+                  .setScanners(
+                        Scanners.SubTypes,
+                        Scanners.TypesAnnotated,
+                        Scanners.MethodsAnnotated,
+                        Scanners.FieldsAnnotated
+                  )
+                  .addUrls(ClasspathHelper.forPackage(MOCK_PACKAGE, cl));
+
+            ReflectionUtil.setBaseConfigurationBuilder(builder);
+
+            // When: no package passed → should use this base builder
+            List<Class<? extends Enum>> result =
+                  ReflectionUtil.findEnumClassImplementationsOfInterface(MockInterface.class);
+
+            // Then
+            assertEquals(List.of(MockEnum.class), result,
+                  "Expected to use base configuration and still find MockEnum");
+         } finally {
+            ReflectionUtil.setBaseConfigurationBuilder(original);
+         }
+      }
+
+      @Test
+      @DisplayName("Should support multiple package prefixes for enum search")
+      void shouldSupportMultiplePackagePrefixesForEnumSearch() {
+         // When: multiple packages, only one valid
+         List<Class<? extends Enum>> result =
+               ReflectionUtil.findEnumClassImplementationsOfInterface(
+                     MockInterface.class,
+                     MOCK_PACKAGE,
+                     "com.fake.nonexistent.package");
+
+         // Then
+         assertTrue(result.contains(MockEnum.class),
+               "Expected to still find MockEnum when multiple packages are provided");
       }
 
    }
@@ -234,7 +280,6 @@ class ReflectionUtilTest {
          );
       }
 
-
       @Test
       @DisplayName("Should return empty list if no implementation is found")
       void shouldReturnEmptyListWhenNoImplementationFound() {
@@ -245,6 +290,68 @@ class ReflectionUtilTest {
          // Then
          assertTrue(classes.isEmpty(),
                "Expected an empty list when no implementations are found");
+      }
+
+      // -------------------------------------------------------------------
+      // NEW TESTS: base configuration & varargs behavior
+      // -------------------------------------------------------------------
+
+      @Test
+      @DisplayName("Should use base configuration when no package is provided for implementation search")
+      void shouldUseBaseConfigurationWhenNoPackageForImplementationSearch() {
+         ConfigurationBuilder original = ReflectionUtil.getBaseConfigurationBuilder();
+         try {
+            // Given: base config restricted to MOCK_PACKAGE
+            ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            ConfigurationBuilder builder = new ConfigurationBuilder()
+                  .addClassLoaders(cl)
+                  .setScanners(
+                        Scanners.SubTypes,
+                        Scanners.TypesAnnotated,
+                        Scanners.MethodsAnnotated,
+                        Scanners.FieldsAnnotated
+                  )
+                  .addUrls(ClasspathHelper.forPackage(MOCK_PACKAGE, cl));
+
+            ReflectionUtil.setBaseConfigurationBuilder(builder);
+
+            // When: no package passed → use base config
+            List<Class<? extends MockInterface>> classes =
+                  ReflectionUtil.findImplementationsOfInterface(MockInterface.class);
+
+            // Then
+            assertAll(
+                  () -> assertFalse(classes.isEmpty(),
+                        "Expected at least one interface implementation"),
+                  () -> assertTrue(classes.contains(TestClass.class),
+                        "Expected TestClass to be found as an implementation"),
+                  () -> assertTrue(classes.contains(MockEnum.class),
+                        "Expected MockEnum to be found as an implementation")
+            );
+         } finally {
+            ReflectionUtil.setBaseConfigurationBuilder(original);
+         }
+      }
+
+      @Test
+      @DisplayName("Should support multiple package prefixes for implementation search")
+      void shouldSupportMultiplePackagePrefixesForImplementationSearch() {
+         // When
+         List<Class<? extends MockInterface>> classes =
+               ReflectionUtil.findImplementationsOfInterface(
+                     MockInterface.class,
+                     MOCK_PACKAGE,
+                     "com.fake.nonexistent.package");
+
+         // Then
+         assertAll(
+               () -> assertFalse(classes.isEmpty(),
+                     "Expected at least one interface implementation"),
+               () -> assertTrue(classes.contains(TestClass.class),
+                     "Expected TestClass to be found as an implementation"),
+               () -> assertTrue(classes.contains(MockEnum.class),
+                     "Expected MockEnum to be found as an implementation")
+         );
       }
 
    }
@@ -271,7 +378,6 @@ class ReflectionUtilTest {
                "Expected to retrieve the correct field value");
       }
 
-
       @Test
       @DisplayName("Should throw exception if field value is null")
       void shouldThrowExceptionWhenFieldValueIsNull() {
@@ -288,7 +394,6 @@ class ReflectionUtilTest {
                "Should indicate that the field value is null or mismatched");
       }
 
-
       @Test
       @DisplayName("Should throw exception if no field of matching type is found")
       void shouldThrowExceptionWhenNoAssignableFieldIsFound() {
@@ -304,7 +409,6 @@ class ReflectionUtilTest {
                "Should indicate that no field of the given type is found");
       }
 
-
       @Test
       @DisplayName("Should retrieve private field values")
       void shouldRetrievePrivateFieldValues() {
@@ -318,7 +422,6 @@ class ReflectionUtilTest {
          assertEquals(List.of("secret"), result,
                "Expected to retrieve the private field value");
       }
-
 
       @ParameterizedTest
       @MethodSource("io.cyborgcode.utilities.reflections.ReflectionUtilTest#fieldAccessScenarios")
@@ -351,27 +454,34 @@ class ReflectionUtilTest {
                () -> ReflectionUtil.findEnumClassImplementationsOfInterface(null, "somePackage"),
                "Expected IllegalArgumentException for null interface parameter");
 
-         assertThrows(IllegalArgumentException.class,
-               () -> ReflectionUtil.findEnumClassImplementationsOfInterface(MockInterface.class, ""),
-               "Expected IllegalArgumentException for empty package parameter");
+         // Empty package for enum class search now goes through scanning and fails with ReflectionException
+         assertThrows(ReflectionException.class,
+               () -> ReflectionUtil.findEnumClassImplementationsOfInterface(
+                     MockInterface.class, ""),
+               "Expected ReflectionException when no enum implementation can be found for empty package configuration");
 
          // Enum value finding
          assertThrows(ReflectionException.class,
-               () -> ReflectionUtil.findEnumImplementationsOfInterface(MockInterface.class, "", MOCK_PACKAGE),
+               () -> ReflectionUtil.findEnumImplementationsOfInterface(
+                     MockInterface.class, "", MOCK_PACKAGE),
                "Expected ReflectionException for empty enum name");
 
-         assertThrows(IllegalArgumentException.class,
-               () -> ReflectionUtil.findEnumImplementationsOfInterface(MockInterface.class, "VALUE", ""),
-               "Expected IllegalArgumentException for empty package parameter");
+         // Empty package for enum value search → also ReflectionException (no enum found)
+         assertThrows(ReflectionException.class,
+               () -> ReflectionUtil.findEnumImplementationsOfInterface(
+                     MockInterface.class, "VALUE", ""),
+               "Expected ReflectionException when enum cannot be resolved with empty package configuration");
 
          // Interface implementations finding
          assertThrows(IllegalArgumentException.class,
                () -> ReflectionUtil.findImplementationsOfInterface(null, "packagePrefix"),
                "Expected IllegalArgumentException for null interface parameter");
 
-         assertThrows(IllegalArgumentException.class,
-               () -> ReflectionUtil.findImplementationsOfInterface(MockInterface.class, ""),
-               "Expected IllegalArgumentException for empty package parameter");
+         // Empty package is no longer treated as validation error; it just yields zero results.
+         List<Class<? extends MockInterface>> implsWithEmptyPackage =
+               ReflectionUtil.findImplementationsOfInterface(MockInterface.class, "");
+         assertTrue(implsWithEmptyPackage.isEmpty(),
+               "Expected an empty list when using an empty package prefix for implementation search");
 
          // Field value retrieval
          assertThrows(IllegalArgumentException.class,
@@ -382,7 +492,6 @@ class ReflectionUtilTest {
                () -> ReflectionUtil.getFieldValues("someObj", null),
                "Expected IllegalArgumentException for null field type parameter");
       }
-
 
       @Test
       @DisplayName("Should be able to access private ReflectionUtil constructor via reflection")
@@ -397,9 +506,71 @@ class ReflectionUtilTest {
                "Expected to successfully create ReflectionUtil instance via reflection");
       }
 
+      @Test
+      @DisplayName("Should allow overriding and retrieving base ConfigurationBuilder")
+      void shouldOverrideAndRetrieveBaseConfigurationBuilder() {
+         ConfigurationBuilder original = ReflectionUtil.getBaseConfigurationBuilder();
+         try {
+            ConfigurationBuilder custom = new ConfigurationBuilder();
+            ReflectionUtil.setBaseConfigurationBuilder(custom);
+
+            assertSame(custom, ReflectionUtil.getBaseConfigurationBuilder(),
+                  "Expected getBaseConfigurationBuilder to return the custom builder");
+         } finally {
+            ReflectionUtil.setBaseConfigurationBuilder(original);
+         }
+      }
+
+      // NEW: coverage for null argument in setBaseConfigurationBuilder
+      @Test
+      @DisplayName("Should throw IllegalArgumentException when base ConfigurationBuilder is null")
+      void shouldThrowWhenBaseConfigurationBuilderIsNull() {
+         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+               () -> ReflectionUtil.setBaseConfigurationBuilder(null),
+               "Expected IllegalArgumentException when baseConfigurationBuilder is null");
+         assertEquals("ConfigurationBuilder cannot be null.", ex.getMessage());
+      }
+
+      // NEW: coverage for String branch inside validateInputs(...)
+      @Test
+      @DisplayName("validateInputs should throw for empty String argument")
+      void shouldThrowForEmptyStringInValidateInputs() throws Exception {
+         var method = ReflectionUtil.class.getDeclaredMethod("validateInputs", Object[].class);
+         method.setAccessible(true);
+
+         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> {
+            try {
+               // pass a single empty String as the vararg array
+               method.invoke(null, new Object[]{ new Object[]{ "" } });
+            } catch (InvocationTargetException e) {
+               // unwrap and rethrow as unchecked so assertThrows can see it
+               throw (IllegalArgumentException) e.getCause();
+            }
+         });
+
+         assertEquals("String input parameter cannot be empty.", ex.getMessage());
+      }
+
+      // NEW: coverage for urlsFromClassLoader(...) first loop using classloader URLs
+      @Test
+      @DisplayName("urlsFromClassLoader should include URLs from the provided classloader")
+      void shouldUseUrlsFromProvidedClassLoader() throws Exception {
+         URL dummyUrl = new URL("file:/dummy/");
+         ClassLoader cl = new URLClassLoader(new URL[]{dummyUrl}, null);
+
+         var method = ReflectionUtil.class.getDeclaredMethod("urlsFromClassLoader", ClassLoader.class);
+         method.setAccessible(true);
+
+         @SuppressWarnings("unchecked")
+         List<URL> result = (List<URL>) method.invoke(null, cl);
+
+         assertFalse(result.isEmpty(), "Expected non-empty URL list from custom class loader");
+         assertTrue(result.contains(dummyUrl),
+               "Expected dummy URL from custom class loader to be present in result");
+      }
 
       // ---------------------------------------------------------------------
-      //  NESTED CLASS: FieldValueEdgeCasesTests
+      //  NESTED CLASS: Field Value Access Edge Cases
       // ---------------------------------------------------------------------
       @Nested
       @DisplayName("Field Value Access Edge Cases")
@@ -410,9 +581,7 @@ class ReflectionUtilTest {
          void shouldHandleSuperclassFields() {
             // Given
             class Parent {
-
                protected String parentField = "parent value";
-
             }
             class Child extends Parent {
                // No fields of its own
@@ -428,39 +597,35 @@ class ReflectionUtilTest {
                   "Expected to find and return the field from the parent class");
          }
 
-
          @Test
          @DisplayName("Should return value from superclass field when type matches")
          void shouldReturnValueFromSuperclassFieldWhenTypeMatches() {
             // Given
             class TestClassWithNumberField {
-
                protected Integer number = 12;
-
             }
 
             // When
-            List<Number> result = ReflectionUtil.getFieldValues(new TestClassWithNumberField(), Number.class);
+            List<Number> result =
+                  ReflectionUtil.getFieldValues(new TestClassWithNumberField(), Number.class);
 
             // Then
             assertEquals(List.of(12), result,
                   "Expected to find and return the field from the superclass with matching type");
          }
 
-
          @Test
          @DisplayName("Should throw when field value is not of the expected runtime type")
          void shouldThrowIfFieldValueIsNotOfExpectedRuntimeType() {
             // Given
             class TestClassWithPolymorphicField {
-
                protected Number number = 12;
-
             }
 
             // When / Then
             ReflectionException ex = assertThrows(ReflectionException.class,
-                  () -> ReflectionUtil.getFieldValues(new TestClassWithPolymorphicField(), Integer.class),
+                  () -> ReflectionUtil.getFieldValues(
+                        new TestClassWithPolymorphicField(), Integer.class),
                   "Expected ReflectionException when the field value is not of the expected runtime type");
 
             assertTrue(ex.getMessage().contains("No fields of type 'java.lang.Integer' found"),
@@ -468,7 +633,6 @@ class ReflectionUtilTest {
          }
 
       }
-
 
       @Test
       @DisplayName("Should handle IllegalAccessException in getAttributeOfClass")
@@ -489,7 +653,6 @@ class ReflectionUtilTest {
          assertSame(illegalAccessEx, reflectionEx.getCause(),
                "Expected the original exception to be preserved as the cause");
       }
-
 
       @Test
       @DisplayName("Should properly create ReflectionException from IllegalAccessException in getFieldValue")
@@ -516,7 +679,6 @@ class ReflectionUtilTest {
                "Expected the original exception to be preserved as cause");
       }
 
-
       @Test
       @DisplayName("Should properly create ReflectionException from IllegalAccessException in getAttributeOfClass")
       void shouldCreateReflectionExceptionFromIllegalAccessInGetAttributeOfClass() {
@@ -542,8 +704,57 @@ class ReflectionUtilTest {
                "Expected the original exception to be preserved as cause");
       }
 
-   }
+      @Test
+      @DisplayName("createDefaultConfiguration should handle null context class loader")
+      void shouldCreateDefaultConfigurationWithNullContextClassLoader() throws Exception {
+         Thread current = Thread.currentThread();
+         ClassLoader original = current.getContextClassLoader();
+         current.setContextClassLoader(null);
 
+         try {
+            var method = ReflectionUtil.class.getDeclaredMethod("createDefaultConfiguration");
+            method.setAccessible(true);
+
+            ConfigurationBuilder builder =
+                  (ConfigurationBuilder) method.invoke(null);
+
+            assertNotNull(builder, "Expected non-null ConfigurationBuilder");
+
+            ClassLoader[] cls = builder.getClassLoaders();
+            assertNotNull(cls, "Class loader array should not be null");
+            assertEquals(0, cls.length,
+                  "When context class loader is null, builder should use an empty class loader array");
+         } finally {
+            // always restore original CL to avoid side effects on other tests
+            current.setContextClassLoader(original);
+         }
+      }
+
+      @Test
+      @DisplayName("createReflections should handle base config without classloaders, scanners or urls")
+      void shouldCreateReflectionsWithMinimalBaseConfiguration() throws Exception {
+         ConfigurationBuilder original = ReflectionUtil.getBaseConfigurationBuilder();
+         try {
+            // Base config with no classloaders / scanners / urls, but with a non-null filter
+            ConfigurationBuilder minimal = new ConfigurationBuilder()
+                  .filterInputsBy(s -> true);
+
+            ReflectionUtil.setBaseConfigurationBuilder(minimal);
+
+            var method = ReflectionUtil.class.getDeclaredMethod(
+                  "createReflections", String[].class);
+            method.setAccessible(true);
+
+            // call private createReflections with one package prefix
+            Object result = method.invoke(null, (Object) new String[]{MOCK_PACKAGE});
+
+            assertNotNull(result, "Expected Reflections instance even with minimal base configuration");
+         } finally {
+            ReflectionUtil.setBaseConfigurationBuilder(original);
+         }
+      }
+
+   }
 
    // -------------------------------------------------------------------------
    //  HELPER METHOD: fieldAccessScenarios
