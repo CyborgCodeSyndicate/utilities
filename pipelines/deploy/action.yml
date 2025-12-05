@@ -41,6 +41,11 @@ inputs:
     required: false
     default: ""
 
+outputs:
+  next_version:
+    description: 'Next version computed by version-management'
+    value: ${{ steps.version.outputs.next_version }}
+
 runs:
   using: "composite"
   steps:
