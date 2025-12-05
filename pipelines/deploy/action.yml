@@ -45,18 +45,6 @@ outputs:
   next_version:
     description: 'Next version computed by version-management'
     value: ${{ steps.version.outputs.next_version }}
-  current_version:
-    description: 'Current project version'
-    value: ${{ steps.version.outputs.current_version }}
-  bump_type:
-    description: 'Version bump type applied'
-    value: ${{ steps.version.outputs.bump_type }}
-  branch:
-    description: 'Current branch name'
-    value: ${{ steps.version.outputs.branch }}
-  is_release:
-    description: 'Whether this is a release version (not snapshot)'
-    value: ${{ steps.version.outputs.is_release }}
 
 runs:
   using: "composite"
