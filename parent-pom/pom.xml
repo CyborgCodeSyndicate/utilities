@@ -107,6 +107,7 @@
         <shared-static-data.version>${project.version}</shared-static-data.version>
         <nashorn-core.version>15.7</nashorn-core.version>
         <maven-javadoc-plugin.failOnError>true</maven-javadoc-plugin.failOnError>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -797,6 +798,12 @@
                     <configuration>
                         <pushChanges>false</pushChanges>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
                 </plugin>
 
             </plugins>
