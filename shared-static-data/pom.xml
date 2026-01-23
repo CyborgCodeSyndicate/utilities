@@ -19,7 +19,7 @@
 
     <organization>
         <name>Cyborg Code Syndicate</name>
-        <url>https://cyborgcodesyndicate.com</url>
+        <url>https://cyborgcode.io</url>
     </organization>
 
     <licenses>
@@ -34,7 +34,7 @@
         <developer>
             <id>cyborgcodesyndicate</id>
             <name>Cyborg Code Syndicate</name>
-            <email>contact@cyborgcode.io</email>
+            <email>operator@cyborgcode.io</email>
             <organization>Cyborg Code Syndicate</organization>
             <organizationUrl>https://cyborgcode.io</organizationUrl>
         </developer>
