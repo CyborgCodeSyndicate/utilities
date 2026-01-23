@@ -33,3 +33,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           github_packages_user: ${{ secrets.GH_PACKAGES_USER }}
           github_packages_token: ${{ secrets.GH_PACKAGES_PAT }}
+          deploy_server_id: github-utilities
