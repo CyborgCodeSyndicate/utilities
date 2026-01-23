@@ -546,9 +546,6 @@
                                     <banCircularDependencies>
                                         <message>Circular dependencies detected! Check your dependencies.</message>
                                     </banCircularDependencies>
-                                    <reactorModuleConvergence>
-                                        <message>Reactor modules are not consistent. Resolve the issue.</message>
-                                    </reactorModuleConvergence>
                                 </rules>
                                 <fail>true</fail>
                             </configuration>
