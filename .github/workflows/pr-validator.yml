@@ -26,3 +26,5 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           java_version: "17"
+          github_packages_user: ${{ secrets.GH_PACKAGES_USER }}
+          github_packages_token: ${{ secrets.GH_PACKAGES_PAT }}
