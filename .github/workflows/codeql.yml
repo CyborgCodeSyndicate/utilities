@@ -1,0 +1,48 @@
+name: CodeQL
+
+on:
+  workflow_dispatch: {}   # ✅ allows “Run workflow” button in Actions tab
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "23 3 * * 2" # weekly scan (Tue)
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze (Java)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          build-mode: manual
+
+      - name: Build (compile only, skip strict scanners)
+        run: |
+          mvn -B -ntp -DskipTests \
+            -Dcheckstyle.skip=true \
+            -Dspotbugs.skip=true \
+            -Ddependency-check.skip=true \
+            -Denforcer.skip=true \
+            package
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4

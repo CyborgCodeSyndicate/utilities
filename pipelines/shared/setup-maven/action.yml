@@ -53,8 +53,7 @@ runs:
         }
         
         # Build server list starting with default
-        DEFAULT_SERVER="github-utilities"
-        SERVERS="$DEFAULT_SERVER"
+        SERVERS="github,github-utilities"
         
         # Add additional servers from input
         if [[ -n "${{ inputs.server_ids }}" ]]; then
@@ -95,6 +94,9 @@ runs:
           </servers>
         </settings>
         XML_FOOTER
+        
+        echo "GITHUB_PACKAGES_TOKEN=${MAVEN_PASSWORD}" >> "$GITHUB_ENV"
+        
         
         # Log configuration summary
         SERVER_COUNT=${#SERVER_ARRAY[@]}

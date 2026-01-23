@@ -3,50 +3,85 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>io.cyborgcode.utilities</groupId>
-        <artifactId>utilities</artifactId>
-        <version>1.4.2</version>
-    </parent>
 
+    <groupId>io.cyborgcode.utilities</groupId>
     <artifactId>parent-pom</artifactId>
+    <version>1.4.2</version>
     <packaging>pom</packaging>
-    <name>Cyborg Code Parent Pom</name>
+    <name>Cyborg Code Utilities Parent</name>
+    <description>Parent POM and dependency management for Cyborg Code Syndicate Java libraries.</description>
+    <url>https://github.com/${github.repo.owner}/${github.repo.name}</url>
+
+    <organization>
+        <name>Cyborg Code Syndicate</name>
+        <url>https://cyborgcode.io</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>cyborgcodesyndicate</id>
+            <name>Cyborg Code Syndicate</name>
+            <email>operator@cyborgcode.io</email>
+            <organization>Cyborg Code Syndicate</organization>
+            <url>https://cyborgcode.io</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/${github.repo.owner}/${github.repo.name}</url>
+        <connection>scm:git:https://github.com/${github.repo.owner}/${github.repo.name}.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/${github.repo.owner}/${github.repo.name}.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/${github.repo.owner}/${github.repo.name}/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/${github.repo.owner}/${github.repo.name}/actions</url>
+    </ciManagement>
 
     <properties>
 
         <github.repo.owner>CyborgCodeSyndicate</github.repo.owner>
         <github.repo.name>utilities</github.repo.name>
 
-        <!-- Java -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Versions -->
         <lombok.version>1.18.42</lombok.version>
-        <log4j.version>2.25.2</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
         <reflections.version>0.10.2</reflections.version>
         <owner.version>1.0.12</owner.version>
-        <spring.version>3.5.6</spring.version>
-        <restassured.version>5.5.6</restassured.version>
-        <jackson.version>3.0.0</jackson.version>
-        <jsonpath.version>2.9.0</jsonpath.version>
+        <spring.version>4.0.1</spring.version>
+        <restassured.version>6.0.0</restassured.version>
+        <jackson.version>3.0.3</jackson.version>
+        <jsonpath.version>2.10.0</jsonpath.version>
         <assertj.version>3.27.6</assertj.version>
 
-        <!-- Updated -->
-
-
-        <junit.version>6.0.0</junit.version>
-        <mockito.version>5.20.0</mockito.version>
+        <junit.version>6.0.2</junit.version>
+        <mockito.version>5.21.0</mockito.version>
         <h2.database.version>2.4.240</h2.database.version>
         <jacoco.version>0.8.14</jacoco.version>
-        <allure.version>2.30.0</allure.version>
-        <selenium.version>4.37.0</selenium.version>
-        <webdrivermanager.version>6.3.2</webdrivermanager.version>
+        <allure.version>2.32.0</allure.version>
+        <selenium.version>4.40.0</selenium.version>
+        <webdrivermanager.version>6.3.3</webdrivermanager.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
-        <junit-platform.version>6.0.0</junit-platform.version>
+        <junit-platform.version>6.0.2</junit-platform.version>
 
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
         <surefire.parallel.type>methods</surefire.parallel.type>
@@ -61,44 +96,43 @@
         </maven-checkstyle-plugin.configLocation>
         <delombok-maven-plugin.skip>false</delombok-maven-plugin.skip>
 
-        <!--        <maven-spring-boot-plugin.version>3.4.0</maven-spring-boot-plugin.version>-->
 
-        <dependency-check-maven.version>12.1.8</dependency-check-maven.version>
+        <dependency-check-maven.version>12.2.0</dependency-check-maven.version>
         <dependency-check-maven.skip>false</dependency-check-maven.skip>
         <dependency-check-maven.skipTestScope>false</dependency-check-maven.skipTestScope>
         <dependency-check-maven.report.skip>false</dependency-check-maven.report.skip>
 
-        <!--        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>-->
 
         <project.reporting.outputDirectory>${project.build.directory}/site</project.reporting.outputDirectory>
         <jacoco.minimum.coverage>0.90</jacoco.minimum.coverage>
 
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+        <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
 
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
 
-        <spotbugs-maven-plugin.version>4.9.7.0</spotbugs-maven-plugin.version>
-        <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
+        <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
+        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
 
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
 
         <junit-bom.version>6.0.0</junit-bom.version>
 
-        <asm.version>9.9</asm.version>
-        <spotbugs-annotations.version>4.9.7</spotbugs-annotations.version>
-        <checker-qual.version>3.51.1</checker-qual.version>
-        <error_prone_annotations.version>2.42.0</error_prone_annotations.version>
+        <asm.version>9.9.1</asm.version>
+        <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
+        <checker-qual.version>3.53.0</checker-qual.version>
+        <error_prone_annotations.version>2.46.0</error_prone_annotations.version>
         <commons-compress.version>1.28.0</commons-compress.version>
-        <commons-io.version>2.20.0</commons-io.version>
+        <commons-io.version>2.21.0</commons-io.version>
         <plexus-classworlds.version>2.9.0</plexus-classworlds.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
-        <maven.version>3.9.11</maven.version>
-        <maven-plugin.version>3.15.1</maven-plugin.version>
+        <maven.version>3.9.12</maven.version>
+        <maven-plugin.version>3.15.2</maven-plugin.version>
         <testng.version>7.11.0</testng.version>
         <classgraph.version>4.8.184</classgraph.version>
-        <httpclient5.version>5.5.1</httpclient5.version>
-        <commons-lang3.version>3.19.0</commons-lang3.version>
+        <httpclient5.version>5.6</httpclient5.version>
+        <httpcore5.version>5.4</httpcore5.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
         <gson.version>2.13.2</gson.version>
         <jna.version>5.18.1</jna.version>
         <minimal.maven.version>[3.8,)</minimal.maven.version>
@@ -108,7 +142,11 @@
         <nashorn-core.version>15.7</nashorn-core.version>
         <maven-javadoc-plugin.failOnError>true</maven-javadoc-plugin.failOnError>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
+        <groovy.version>5.0.3</groovy.version>
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     </properties>
+
 
     <dependencyManagement>
         <dependencies>
@@ -386,6 +424,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${commons-lang3.version}</version>
@@ -407,6 +451,13 @@
                 <groupId>org.openjdk.nashorn</groupId>
                 <artifactId>nashorn-core</artifactId>
                 <version>${nashorn-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
+                <scope>compile</scope>
             </dependency>
 
         </dependencies>
@@ -495,9 +546,6 @@
                                     <banCircularDependencies>
                                         <message>Circular dependencies detected! Check your dependencies.</message>
                                     </banCircularDependencies>
-                                    <reactorModuleConvergence>
-                                        <message>Reactor modules are not consistent. Resolve the issue.</message>
-                                    </reactorModuleConvergence>
                                 </rules>
                                 <fail>true</fail>
                             </configuration>
@@ -652,7 +700,6 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>${jacoco.version}</version>
 
-                    <!-- your existing global config -->
                     <configuration>
                         <append>true</append>
                         <dumpOnExit>true</dumpOnExit>
@@ -660,21 +707,19 @@
 
                     <executions>
 
-                        <!-- 1️⃣  Agent in every module so *.exec files are produced -->
                         <execution>
                             <id>prepare-agent</id>
                             <phase>initialize</phase>
-                            <inherited>true</inherited>          <!-- runs in children too -->
+                            <inherited>true</inherited>
                             <goals>
                                 <goal>prepare-agent</goal>
                             </goals>
                         </execution>
 
-                        <!-- 2️⃣  Optional per-module HTML report (leave for local dev use) -->
                         <execution>
                             <id>module-report</id>
                             <phase>verify</phase>
-                            <inherited>true</inherited>          <!-- runs when dev builds a module -->
+                            <inherited>true</inherited>
                             <goals>
                                 <goal>report</goal>
                             </goals>
@@ -682,12 +727,10 @@
                                 <excludes>
                                     <exclude>**/exceptions/*</exclude>
                                 </excludes>
-                                <!-- keeps your original path -->
                                 <outputDirectory>${project.reporting.outputDirectory}/jacoco/ut</outputDirectory>
                             </configuration>
                         </execution>
 
-                        <!-- 3️⃣  Coverage rule per module (optional, keep as-is) -->
                         <execution>
                             <id>jacoco-check</id>
                             <phase>verify</phase>
@@ -711,11 +754,10 @@
                             </configuration>
                         </execution>
 
-                        <!-- 4️⃣  **Parent-only** aggregate XML (one file for the PR validator) -->
                         <execution>
                             <id>jacoco-aggregate</id>
                             <phase>verify</phase>
-                            <inherited>false</inherited>         <!-- runs ONLY in the parent -->
+                            <inherited>false</inherited>
                             <goals>
                                 <goal>report-aggregate</goal>
                             </goals>
@@ -806,6 +848,32 @@
                     <version>${sonar-maven-plugin.version}</version>
                 </plugin>
 
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${central-publishing-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>central</publishingServerId>
+                        <autoPublish>true</autoPublish>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
             </plugins>
         </pluginManagement>
 
@@ -873,13 +941,146 @@
             <id>has-sources</id>
             <activation>
                 <file>
-                    <!-- pick the check you want; src/main/java is typical -->
                     <exists>${project.basedir}/src/main/java</exists>
                 </file>
             </activation>
             <build>
 
             </build>
+        </profile>
+
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>github</id>
+
+            <activation>
+                <property>
+                    <name>env.GITHUB_PACKAGES_TOKEN</name>
+                </property>
+            </activation>
+
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
+                </repository>
+                <snapshotRepository>
+                    <id>github</id>
+                    <name>GitHub Packages Snapshot</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
+                </snapshotRepository>
+            </distributionManagement>
+
+            <repositories>
+                <repository>
+                    <id>github-utilities</id>
+                    <name>GitHub Packages for Utilities</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-roa-libraries</id>
+                    <name>GitHub Packages for ROA Libraries</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-roa-plugins</id>
+                    <name>GitHub Packages for ROA Plugins</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-pandora</id>
+                    <name>GitHub Packages for Pandora</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>github-roa-libraries</id>
+                    <name>GitHub Packages for ROA Libraries</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>github-utilities</id>
+                    <name>GitHub for ROA Utilities</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>github-roa-plugins</id>
+                    <name>GitHub Packages for ROA Plugins</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>github-pandora</id>
+                    <name>GitHub Packages for Pandora</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+
         </profile>
 
     </profiles>
@@ -935,112 +1136,5 @@
         </plugins>
     </reporting>
 
-
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
-        </repository>
-        <snapshotRepository>
-            <id>github</id>
-            <name>GitHub Packages Snapshot</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>github-utilities</id>
-            <name>GitHub Packages for Utilities</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>github-roa-libraries</id>
-            <name>GitHub Packages for ROA Libraries</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>github-roa-plugins</id>
-            <name>GitHub Packages for ROA Plugins</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>github-pandora</id>
-            <name>GitHub Packages for Pandora</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>github-roa-libraries</id>
-            <name>GitHub Packages for ROA Libraries</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>github-utilities</id>
-            <name>GitHub for ROA Utilities</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>github-roa-plugins</id>
-            <name>GitHub Packages for ROA Plugins</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>github-pandora</id>
-            <name>GitHub Packages for ROA Plugins</name>
-            <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>

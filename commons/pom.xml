@@ -12,6 +12,7 @@
 
     <artifactId>commons</artifactId>
     <name>Cyborg Code Commons</name>
+    <description>Library containing reusable code for Cyborg Code Syndicate Java libraries.</description>
 
 
     <dependencies>

@@ -78,3 +78,5 @@ Add to your `~/.m2/settings.xml`:
 ## Author
 
 **Cyborg Code Syndicate 💍👨💻**
+
+Licensed under Apache-2.0

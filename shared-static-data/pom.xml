@@ -1,16 +1,142 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>io.cyborgcode.utilities</groupId>
-        <artifactId>utilities</artifactId>
-        <version>1.4.2</version>
-    </parent>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.cyborgcode.utilities</groupId>
     <artifactId>shared-static-data</artifactId>
-    <name>Cyborg Code Shared Static data</name>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
+
+    <name>Cyborg Code Shared Static Data</name>
+    <description>Shared static configuration resources for Cyborg Code Syndicate build tooling (Checkstyle, codestyle,
+        SpotBugs).
+    </description>
+
+    <url>https://github.com/CyborgCodeSyndicate/utilities</url>
+
+    <organization>
+        <name>Cyborg Code Syndicate</name>
+        <url>https://cyborgcodesyndicate.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>cyborgcodesyndicate</id>
+            <name>Cyborg Code Syndicate</name>
+            <email>contact@cyborgcodesyndicate.com</email>
+            <organization>Cyborg Code Syndicate</organization>
+            <organizationUrl>https://cyborgcodesyndicate.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/CyborgCodeSyndicate/utilities</url>
+        <connection>scm:git:https://github.com/CyborgCodeSyndicate/utilities.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/CyborgCodeSyndicate/utilities.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/CyborgCodeSyndicate/utilities/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/CyborgCodeSyndicate/utilities/actions</url>
+    </ciManagement>
+
+    <properties>
+        <github.repo.owner>CyborgCodeSyndicate</github.repo.owner>
+        <github.repo.name>utilities</github.repo.name>
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.4.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.12.0</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central-publishing-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
 
 </project>

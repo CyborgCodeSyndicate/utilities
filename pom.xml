@@ -9,6 +9,9 @@
     <version>1.4.2</version>
     <packaging>pom</packaging>
     <name>Utilities</name>
+    <description>Aggregator POM for the utilities</description>
+
+
     <modules>
         <module>parent-pom</module>
         <module>commons</module>
