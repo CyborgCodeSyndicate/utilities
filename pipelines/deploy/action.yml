@@ -58,8 +58,8 @@ runs:
     - name: Setup Environment Variables
       shell: bash
       run: |
-        echo "OWNER=${GITHUB_REPOSITORY%/*}" >> "$GITHUB_ENV"
-        echo "REPO=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_ENV"
+        echo "OWNER=${GITHUB_REPOSITORY%%/*}" >> "$GITHUB_ENV"
+        echo "REPO=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_ENV"
         echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> "$GITHUB_ENV"
 
     # === MAVEN & JAVA SETUP ===
