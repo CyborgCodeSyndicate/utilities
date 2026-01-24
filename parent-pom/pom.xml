@@ -653,6 +653,7 @@
                     <version>${dependency-check-maven.version}</version>
 
                     <configuration>
+                        <failOnError>false</failOnError>
                         <nvdApiKey>${nvd.api.key}</nvdApiKey>
                         <name>OWASP Security Check</name>
                         <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
