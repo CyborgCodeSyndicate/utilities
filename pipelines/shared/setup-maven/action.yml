@@ -90,13 +90,44 @@ runs:
         XML_SERVER
         done
         
-        cat >> ~/.m2/settings.xml << 'XML_FOOTER'
+        # Close servers section (we'll close </settings> after optional repo profile)
+        cat >> ~/.m2/settings.xml << 'XML_SERVERS_CLOSE'
           </servers>
+        XML_SERVERS_CLOSE
+        
+        # Add repositories ONLY for github-utilities (via an active profile)
+        if [[ ",$SERVERS," == *",github-utilities,"* ]]; then
+          cat >> ~/.m2/settings.xml << 'XML_UTILITIES_REPO_PROFILE'
+          <profiles>
+            <profile>
+              <id>github-utilities-repo</id>
+              <repositories>
+                <repository>
+                  <id>github-utilities</id>
+                  <name>GitHub Packages for Utilities</name>
+                  <url>https://maven.pkg.github.com/CyborgCodeSyndicate/utilities</url>
+                  <releases>
+                    <enabled>true</enabled>
+                  </releases>
+                  <snapshots>
+                    <enabled>true</enabled>
+                  </snapshots>
+                </repository>
+              </repositories>
+            </profile>
+          </profiles>
+          <activeProfiles>
+            <activeProfile>github-utilities-repo</activeProfile>
+          </activeProfiles>
+        XML_UTILITIES_REPO_PROFILE
+        fi
+        
+        # Close settings
+        cat >> ~/.m2/settings.xml << 'XML_SETTINGS_CLOSE'
         </settings>
-        XML_FOOTER
+        XML_SETTINGS_CLOSE
         
         echo "GITHUB_PACKAGES_TOKEN=${MAVEN_PASSWORD}" >> "$GITHUB_ENV"
-        
         
         # Log configuration summary
         SERVER_COUNT=${#SERVER_ARRAY[@]}
