@@ -84,6 +84,7 @@ runs:
       with:
         version_bump: ${{ inputs.version_bump }}
         enforce_main_branch: true
+        use_rc: ${{ inputs.use_rc }}
 
     # === GIT OPERATIONS (for releases) ===
     - name: Commit and Tag Release
