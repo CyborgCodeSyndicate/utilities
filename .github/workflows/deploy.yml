@@ -11,6 +11,11 @@ on:
         default: none
         type: choice
         options: [major, minor, patch, none]
+      use_rc:
+        description: 'Create RC version (x.y.z-rc-N). Only applies when version_bump != none'
+        required: false
+        type: boolean
+        default: false
       modules:
         description: 'Comma-separated Maven modules to deploy (optional)'
         required: false
@@ -34,3 +39,4 @@ jobs:
           github_packages_user: ${{ secrets.GH_PACKAGES_USER }}
           github_packages_token: ${{ secrets.GH_PACKAGES_PAT }}
           deploy_server_id: github-utilities
+          use_rc: ${{ inputs.use_rc }}

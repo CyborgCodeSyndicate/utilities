@@ -27,7 +27,7 @@ jobs:
           maven_central_token: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
-      
+
       - name: Create GitHub Release
         if: success()
         uses: actions/create-release@v1
@@ -71,4 +71,4 @@ jobs:
             - Artifacts may take up to 30 minutes to appear in Maven Central
             - Search for artifacts: https://search.maven.org/search?q=g:io.cyborgcode.utilities
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(inputs.version, '-rc-') }}
