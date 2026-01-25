@@ -7,7 +7,7 @@
 
     <groupId>io.cyborgcode.utilities</groupId>
     <artifactId>pipelines</artifactId>
-    <version>1.5.1</version>
+    <version>1.5.2</version>
     <packaging>pom</packaging>
 
     <name>Shared GitHub Actions</name>
