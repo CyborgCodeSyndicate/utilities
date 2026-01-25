@@ -6,7 +6,7 @@
 
     <groupId>io.cyborgcode.utilities</groupId>
     <artifactId>utilities</artifactId>
-    <version>1.5.3</version>
+    <version>1.5.4</version>
     <packaging>pom</packaging>
     <name>Utilities</name>
     <description>Aggregator POM for the utilities</description>
