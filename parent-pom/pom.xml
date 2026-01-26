@@ -1,0 +1,1143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.cyborgcode.utilities</groupId>
+    <artifactId>parent-pom</artifactId>
+    <version>0.0.0</version>
+    <packaging>pom</packaging>
+    <name>Cyborg Code Utilities Parent</name>
+    <description>Parent POM and dependency management for Cyborg Code Syndicate Java libraries.</description>
+    <url>https://github.com/${github.repo.owner}/${github.repo.name}</url>
+
+    <organization>
+        <name>Cyborg Code Syndicate</name>
+        <url>https://cyborgcode.io</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>cyborgcodesyndicate</id>
+            <name>Cyborg Code Syndicate</name>
+            <email>operator@cyborgcode.io</email>
+            <organization>Cyborg Code Syndicate</organization>
+            <url>https://cyborgcode.io</url>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/${github.repo.owner}/${github.repo.name}</url>
+        <connection>scm:git:https://github.com/${github.repo.owner}/${github.repo.name}.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/${github.repo.owner}/${github.repo.name}.git
+        </developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/${github.repo.owner}/${github.repo.name}/issues</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>GitHub Actions</system>
+        <url>https://github.com/${github.repo.owner}/${github.repo.name}/actions</url>
+    </ciManagement>
+
+    <properties>
+
+        <github.repo.owner>CyborgCodeSyndicate</github.repo.owner>
+        <github.repo.name>utilities</github.repo.name>
+
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <lombok.version>1.18.42</lombok.version>
+        <log4j.version>2.25.3</log4j.version>
+        <reflections.version>0.10.2</reflections.version>
+        <owner.version>1.0.12</owner.version>
+        <spring.version>4.0.2</spring.version>
+        <restassured.version>6.0.0</restassured.version>
+        <jackson.version>3.0.4</jackson.version>
+        <jsonpath.version>2.10.0</jsonpath.version>
+        <assertj.version>3.27.7</assertj.version>
+
+        <junit.version>6.0.2</junit.version>
+        <mockito.version>5.21.0</mockito.version>
+        <h2.database.version>2.4.240</h2.database.version>
+        <jacoco.version>0.8.14</jacoco.version>
+        <allure.version>2.32.0</allure.version>
+        <selenium.version>4.40.0</selenium.version>
+        <webdrivermanager.version>6.3.3</webdrivermanager.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <junit-platform.version>6.0.2</junit-platform.version>
+
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <surefire.parallel.type>methods</surefire.parallel.type>
+        <surefire.parallel.threads>5</surefire.parallel.threads>
+
+        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+        <extra-enforcer-rules.version>1.11.0</extra-enforcer-rules.version>
+        <vulnerabilities.threshold>5.0</vulnerabilities.threshold>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <checkstyle.version>12.0.1</checkstyle.version>
+        <maven-checkstyle-plugin.configLocation>io/cyborgcode/static-data/roa_checks.xml
+        </maven-checkstyle-plugin.configLocation>
+        <delombok-maven-plugin.skip>false</delombok-maven-plugin.skip>
+
+
+        <dependency-check-maven.version>12.2.0</dependency-check-maven.version>
+        <dependency-check-maven.skip>false</dependency-check-maven.skip>
+        <dependency-check-maven.skipTestScope>false</dependency-check-maven.skipTestScope>
+        <dependency-check-maven.report.skip>false</dependency-check-maven.report.skip>
+
+
+        <project.reporting.outputDirectory>${project.build.directory}/site</project.reporting.outputDirectory>
+        <jacoco.minimum.coverage>0.90</jacoco.minimum.coverage>
+
+        <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+        <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+
+        <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
+
+        <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
+        <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
+
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+
+        <junit-bom.version>6.0.0</junit-bom.version>
+
+        <asm.version>9.9.1</asm.version>
+        <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
+        <checker-qual.version>3.53.0</checker-qual.version>
+        <error_prone_annotations.version>2.46.0</error_prone_annotations.version>
+        <commons-compress.version>1.28.0</commons-compress.version>
+        <commons-io.version>2.21.0</commons-io.version>
+        <plexus-classworlds.version>2.9.0</plexus-classworlds.version>
+        <plexus-utils.version>4.0.2</plexus-utils.version>
+        <maven.version>3.9.12</maven.version>
+        <maven-plugin.version>3.15.2</maven-plugin.version>
+        <testng.version>7.12.0</testng.version>
+        <classgraph.version>4.8.184</classgraph.version>
+        <httpclient5.version>5.6</httpclient5.version>
+        <httpcore5.version>5.4</httpcore5.version>
+        <commons-lang3.version>3.20.0</commons-lang3.version>
+        <gson.version>2.13.2</gson.version>
+        <jna.version>5.18.1</jna.version>
+        <minimal.maven.version>[3.8,)</minimal.maven.version>
+        <spotbugs-maven-plugin.excludeFilterFile>io/cyborgcode/static-data/spotbugs-exclude.xml
+        </spotbugs-maven-plugin.excludeFilterFile>
+        <shared-static-data.version>${project.version}</shared-static-data.version>
+        <nashorn-core.version>15.7</nashorn-core.version>
+        <maven-javadoc-plugin.failOnError>true</maven-javadoc-plugin.failOnError>
+        <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
+        <groovy.version>5.0.4</groovy.version>
+        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    </properties>
+
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-bom</artifactId>
+                <version>${log4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>${reflections.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.aeonbits.owner</groupId>
+                <artifactId>owner</artifactId>
+                <version>${owner.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.seleniumhq.selenium</groupId>
+                <artifactId>selenium-dependencies-bom</artifactId>
+                <version>${selenium.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter</artifactId>
+                <version>${spring.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured-bom</artifactId>
+                <version>${restassured.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jayway.jsonpath</groupId>
+                <artifactId>json-path</artifactId>
+                <version>${jsonpath.version}</version>
+            </dependency>
+
+            <!-- AssertJ -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-bom</artifactId>
+                <version>${assertj.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>${h2.database.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-bom</artifactId>
+                <version>${allure.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+
+            <dependency>
+                <groupId>io.github.bonigarcia</groupId>
+                <artifactId>webdrivermanager</artifactId>
+                <version>${webdrivermanager.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-launcher</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-engine</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit-platform.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm-bom</artifactId>
+                <version>${asm.version}</version>
+                <type>pom</type>
+            </dependency>
+
+            <dependency>
+                <groupId>org.ow2.asm</groupId>
+                <artifactId>asm</artifactId>
+                <version>${asm.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${error_prone_annotations.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-annotations</artifactId>
+                <version>${spotbugs-annotations.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <version>${checker-qual.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-classworlds</artifactId>
+                <version>${plexus-classworlds.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>${plexus-utils.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-plugin-api</artifactId>
+                <version>${maven.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven</groupId>
+                <artifactId>maven-core</artifactId>
+                <version>${maven.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugin-tools</groupId>
+                <artifactId>maven-plugin-annotations</artifactId>
+                <version>${maven-plugin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testng</groupId>
+                <artifactId>testng</artifactId>
+                <version>${testng.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.classgraph</groupId>
+                <artifactId>classgraph</artifactId>
+                <version>${classgraph.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <version>${httpclient5.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>${httpcore5.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${gson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.java.dev.jna</groupId>
+                <artifactId>jna</artifactId>
+                <version>${jna.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.openjdk.nashorn</groupId>
+                <artifactId>nashorn-core</artifactId>
+                <version>${nashorn-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <parameters>true</parameters>
+                        <verbose>false</verbose>
+                        <compilerArgs>
+                            <arg>-Xlint:unchecked</arg>
+                            <arg>-Xlint:deprecation</arg>
+                        </compilerArgs>
+                        <failOnError>false</failOnError>
+                        <fork>true</fork>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                    <configuration>
+                        <runOrder>alphabetical</runOrder>
+                        <skipTests>false</skipTests>
+                        <testFailureIgnore>false</testFailureIgnore>
+                        <parallel>${surefire.parallel.type}</parallel>
+                        <threadCount>${surefire.parallel.threads}</threadCount>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                        <printSummary>true</printSummary>
+                        <excludedGroups>exclude-from-verify</excludedGroups>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>extra-enforcer-rules</artifactId>
+                            <version>${extra-enforcer-rules.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <id>enforce</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireMavenVersion>
+                                        <version>${minimal.maven.version}</version>
+                                        <message>Minimal Maven version ${minimal.maven.version} is required.</message>
+                                    </requireMavenVersion>
+                                    <requireJavaVersion>
+                                        <version>${java.version}</version>
+                                        <message>Minimal Java version ${java.version} is required.</message>
+                                    </requireJavaVersion>
+                                    <banDuplicatePomDependencyVersions>
+                                        <message>Duplicate dependency versions found! Resolve conflicts.</message>
+                                    </banDuplicatePomDependencyVersions>
+                                    <dependencyConvergence>
+                                        <message>Dependency convergence issues detected! Resolve conflicting versions.
+                                        </message>
+                                    </dependencyConvergence>
+                                    <requireReleaseDeps>
+                                        <message>SNAPSHOT dependencies are not allowed in libraries.</message>
+                                        <failWhenParentIsSnapshot>false</failWhenParentIsSnapshot>
+                                        <excludes>
+                                            <exclude>${project.groupId}:*</exclude>
+                                        </excludes>
+                                        <searchTransitive>true</searchTransitive>
+                                    </requireReleaseDeps>
+                                    <banCircularDependencies>
+                                        <message>Circular dependencies detected! Check your dependencies.</message>
+                                    </banCircularDependencies>
+                                </rules>
+                                <fail>true</fail>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle-plugin.version}</version>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.cyborgcode.utilities</groupId>
+                            <artifactId>shared-static-data</artifactId>
+                            <version>${shared-static-data.version}</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>com.puppycrawl.tools</groupId>
+                            <artifactId>checkstyle</artifactId>
+                            <version>${checkstyle.version}</version>
+                        </dependency>
+                    </dependencies>
+
+                    <configuration>
+                        <skip>false</skip>
+                        <configLocation>${maven-checkstyle-plugin.configLocation}</configLocation>
+                        <includeTestSourceDirectory>false</includeTestSourceDirectory>
+                        <violationSeverity>warning</violationSeverity>
+                        <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+                        <outputEncoding>${project.build.sourceEncoding}</outputEncoding>
+                        <consoleOutput>true</consoleOutput>
+                        <failsOnError>true</failsOnError>
+                        <linkXRef>false</linkXRef>
+                        <sourceDirectories>
+                            <sourceDirectory>src/main/java</sourceDirectory>
+                        </sourceDirectories>
+                        <testSourceDirectories>
+                            <testSourceDirectory>src/test/java</testSourceDirectory>
+                        </testSourceDirectories>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>${maven-javadoc-plugin.version}</version>
+                    <configuration>
+                        <skip>false</skip>
+                        <show>protected</show>
+                        <source>${java.version}</source>
+                        <linksource>true</linksource>
+                        <doclint>none</doclint>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <outputDirectory>${project.build.directory}/javadocs</outputDirectory>
+                        <failOnError>${maven-javadoc-plugin.failOnError}</failOnError>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>generate-javadoc-jar</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <phase>package</phase>
+                        </execution>
+                        <execution>
+                            <id>aggregate</id>
+                            <goals>
+                                <goal>aggregate</goal>
+                            </goals>
+                            <phase>site</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>${maven-source-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${dependency-check-maven.version}</version>
+
+                    <configuration>
+                        <failOnError>false</failOnError>
+                        <nvdApiKey>${nvd.api.key}</nvdApiKey>
+                        <name>OWASP Security Check</name>
+                        <retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+                        <failBuildOnCVSS>5</failBuildOnCVSS>
+                        <skip>${dependency-check-maven.skip}</skip>
+                        <skipTestScope>${dependency-check-maven.skipTestScope}</skipTestScope>
+                        <failBuildOnCVSS>${vulnerabilities.threshold}</failBuildOnCVSS>
+                        <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
+                        <suppressionFiles>
+                            <suppressionFile>
+                                ${maven.multiModuleProjectDirectory}/dependency-check-suppressions.xml
+                            </suppressionFile>
+                        </suppressionFiles>
+                        <formats>
+                            <format>json</format>
+                            <format>html</format>
+                            <format>sarif</format>
+                        </formats>
+                        <outputDirectory>${project.build.directory}/dependency-check-report</outputDirectory>
+                    </configuration>
+
+                    <executions>
+                        <execution>
+                            <id>dc-aggregate</id>
+                            <phase>verify</phase>
+                            <inherited>false</inherited>
+                            <goals>
+                                <goal>aggregate</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>dc-check</id>
+                            <phase>verify</phase>
+                            <inherited>true</inherited>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+
+                    <configuration>
+                        <append>true</append>
+                        <dumpOnExit>true</dumpOnExit>
+                    </configuration>
+
+                    <executions>
+
+                        <execution>
+                            <id>prepare-agent</id>
+                            <phase>initialize</phase>
+                            <inherited>true</inherited>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+
+                        <execution>
+                            <id>module-report</id>
+                            <phase>verify</phase>
+                            <inherited>true</inherited>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                            <configuration>
+                                <excludes>
+                                    <exclude>**/exceptions/*</exclude>
+                                </excludes>
+                                <outputDirectory>${project.reporting.outputDirectory}/jacoco/ut</outputDirectory>
+                            </configuration>
+                        </execution>
+
+                        <execution>
+                            <id>jacoco-check</id>
+                            <phase>verify</phase>
+                            <inherited>true</inherited>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <rule>
+                                        <element>BUNDLE</element>
+                                        <limits>
+                                            <limit>
+                                                <counter>INSTRUCTION</counter>
+                                                <value>COVEREDRATIO</value>
+                                                <minimum>${jacoco.minimum.coverage}</minimum>
+                                            </limit>
+                                        </limits>
+                                    </rule>
+                                </rules>
+                            </configuration>
+                        </execution>
+
+                        <execution>
+                            <id>jacoco-aggregate</id>
+                            <phase>verify</phase>
+                            <inherited>false</inherited>
+                            <goals>
+                                <goal>report-aggregate</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>
+                                    ${project.build.directory}/jacoco-aggregate
+                                </outputDirectory>
+                                <excludes>
+                                    <exclude>**/exceptions/*</exclude>
+                                </excludes>
+                            </configuration>
+                        </execution>
+
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>${maven-resources-plugin.version}</version>
+                    <configuration>
+                        <encoding>${project.build.sourceEncoding}</encoding>
+                        <useDefaultDelimiters>true</useDefaultDelimiters>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>${maven-clean-plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs-maven-plugin.version}</version>
+
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.cyborgcode.utilities</groupId>
+                            <artifactId>shared-static-data</artifactId>
+                            <version>${shared-static-data.version}</version>
+                        </dependency>
+                    </dependencies>
+
+                    <configuration>
+                        <xmlOutput>true</xmlOutput>
+                        <htmlOutput>true</htmlOutput>
+                        <sarifOutput>true</sarifOutput>
+                        <excludeFilterFile>
+                            ${spotbugs-maven-plugin.excludeFilterFile}
+                        </excludeFilterFile>
+                        <outputDirectory>${project.build.directory}/spotbugs</outputDirectory>
+                        <failOnError>true</failOnError>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>spotbugs-check</id>
+                            <phase>verify</phase>
+                            <inherited>true</inherited>
+                            <goals>
+                                <goal>spotbugs</goal>
+                                <goal>check</goal>
+                            </goals>
+                            <configuration>
+                                <xmlOutput>true</xmlOutput>
+                                <htmlOutput>true</htmlOutput>
+                                <sarifOutput>true</sarifOutput>
+                                <sarifOutputFilename>spotbugs.sarif</sarifOutputFilename>
+                                <sarifOutputDirectory>${project.build.directory}/spotbugs</sarifOutputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${maven-release-plugin.version}</version>
+                    <configuration>
+                        <pushChanges>false</pushChanges>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar-maven-plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>${central-publishing-maven-plugin.version}</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <publishingServerId>central</publishingServerId>
+                        <autoPublish>true</autoPublish>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
+                    <configuration>
+                        <gpgArguments>
+                            <arg>--pinentry-mode</arg>
+                            <arg>loopback</arg>
+                        </gpgArguments>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>pr-validator</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>has-sources</id>
+            <activation>
+                <file>
+                    <exists>${project.basedir}/src/main/java</exists>
+                </file>
+            </activation>
+            <build>
+
+            </build>
+        </profile>
+
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>github</id>
+
+            <activation>
+                <property>
+                    <name>env.GITHUB_PACKAGES_TOKEN</name>
+                </property>
+            </activation>
+
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
+                </repository>
+                <snapshotRepository>
+                    <id>github</id>
+                    <name>GitHub Packages Snapshot</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/${github.repo.name}</url>
+                </snapshotRepository>
+            </distributionManagement>
+
+            <repositories>
+                <repository>
+                    <id>github-utilities</id>
+                    <name>GitHub Packages for Utilities</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-roa-libraries</id>
+                    <name>GitHub Packages for ROA Libraries</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-roa-plugins</id>
+                    <name>GitHub Packages for ROA Plugins</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-pandora</id>
+                    <name>GitHub Packages for Pandora</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>github-roa-libraries</id>
+                    <name>GitHub Packages for ROA Libraries</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-libraries</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>github-utilities</id>
+                    <name>GitHub for ROA Utilities</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/utilities</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>github-roa-plugins</id>
+                    <name>GitHub Packages for ROA Plugins</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/roa-plugins</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>github-pandora</id>
+                    <name>GitHub Packages for Pandora</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+
+        </profile>
+
+    </profiles>
+
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <configuration>
+                    <skip>${dependency-check-maven.report.skip}</skip>
+                    <outputDirectory>
+                        ${project.reporting.outputDirectory}/dependency-check-report
+                    </outputDirectory>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>aggregate</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <xmlOutput>true</xmlOutput>
+                    <htmlOutput>true</htmlOutput>
+                    <outputDirectory>${project.reporting.outputDirectory}/spotbugs</outputDirectory>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>spotbugs</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+
+        </plugins>
+    </reporting>
+
+
+</project>

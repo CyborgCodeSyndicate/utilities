@@ -1,0 +1,224 @@
+name: Deploy to Maven Central (Composite)
+description: Deploy specific Maven modules to Maven Central using the central profile
+
+inputs:
+  version:
+    description: 'Version to deploy (must match an existing tag)'
+    required: true
+  
+  modules:
+    description: 'Comma-separated Maven modules to deploy (e.g., parent-pom,commons)'
+    required: true
+  
+  java_version:
+    description: 'Java version to use'
+    required: false
+    default: "17"
+  
+  maven_central_username:
+    description: 'Maven Central username (Sonatype)'
+    required: true
+  
+  maven_central_token:
+    description: 'Maven Central token (Sonatype)'
+    required: true
+  
+  gpg_private_key:
+    description: 'GPG private key for signing artifacts'
+    required: true
+  
+  gpg_passphrase:
+    description: 'GPG passphrase for the private key'
+    required: true
+
+outputs:
+  deployed_version:
+    description: 'Version that was deployed'
+    value: ${{ inputs.version }}
+  deployed_modules:
+    description: 'Modules that were deployed'
+    value: ${{ inputs.modules }}
+
+runs:
+  using: "composite"
+  steps:
+    # === CHECKOUT SPECIFIC VERSION ===
+    - name: Checkout Repository at Version Tag
+      uses: actions/checkout@v4
+      with:
+        ref: "v${{ inputs.version }}"
+        fetch-depth: 0
+
+    # === SETUP JAVA ===
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: ${{ inputs.java_version }}
+        cache: maven
+
+    # === CONFIGURE GPG FOR SIGNING ===
+    - name: Configure GPG Key
+      shell: bash
+      run: |
+        set -euo pipefail
+        
+        echo "🔐 Configuring GPG for artifact signing..."
+        
+        # Ensure gpg can talk to the terminal (if needed)
+        export GPG_TTY="$(tty)"
+        
+        # Import raw ASCII-armored key from secret
+        echo "${{ inputs.gpg_private_key }}" | gpg --batch --import
+        
+        # List keys to verify import
+        gpg --list-secret-keys --keyid-format=long
+        
+        echo "✅ GPG key configured successfully"
+
+    # === CONFIGURE MAVEN SETTINGS ===
+    - name: Configure Maven Settings for Central
+      shell: bash
+      run: |
+        set -euo pipefail
+        
+        echo "📝 Configuring Maven settings for Maven Central deployment..."
+        
+        mkdir -p ~/.m2
+        
+        cat > ~/.m2/settings.xml << 'SETTINGS_XML'
+        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+          <servers>
+            <server>
+              <id>central</id>
+              <username>${{ inputs.maven_central_username }}</username>
+              <password>${{ inputs.maven_central_token }}</password>
+            </server>
+          </servers>
+        </settings>
+        SETTINGS_XML
+        
+        echo "✅ Maven settings configured"
+
+    # === VERIFY VERSION MATCHES POM ===
+    - name: Verify Version Matches POM
+      shell: bash
+      run: |
+        set -e
+        
+        echo "🔍 Verifying version consistency..."
+        
+        # Get version from POM
+        POM_VERSION=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate 2>/dev/null || echo "")
+        
+        if [[ -z "$POM_VERSION" ]]; then
+          echo "❌ Failed to determine project version from pom.xml" >&2
+          exit 1
+        fi
+        
+        EXPECTED_VERSION="${{ inputs.version }}"
+        
+        if [[ "$POM_VERSION" != "$EXPECTED_VERSION" ]]; then
+          echo "❌ Version mismatch!" >&2
+          echo "   POM version: $POM_VERSION" >&2
+          echo "   Expected version: $EXPECTED_VERSION" >&2
+          echo "   Make sure you're deploying the correct tag!" >&2
+          exit 1
+        fi
+        
+        echo "✅ Version verified: $POM_VERSION"
+
+    # === BUILD AND TEST ===
+    - name: Build and Test with Central Profile
+      shell: bash
+      run: |
+        set -e
+        
+        echo "🔨 Building project with central profile..."
+        echo "📦 Modules to build: ${{ inputs.modules }}"
+        
+        # Build with tests to ensure quality
+        # GPG passphrase is provided via MAVEN_GPG_PASSPHRASE env var (signing happens in verify phase)
+        mvn -B clean verify \
+          -P central \
+          -pl "${{ inputs.modules }}" \
+          -am \
+          --no-transfer-progress
+        
+        if [[ $? -ne 0 ]]; then
+          echo "❌ Build failed! Aborting deployment." >&2
+          exit 1
+        fi
+        
+        echo "✅ Build and tests completed successfully"
+      env:
+        MAVEN_GPG_PASSPHRASE: ${{ inputs.gpg_passphrase }}
+
+    # === DEPLOY TO MAVEN CENTRAL ===
+    - name: Deploy to Maven Central
+      shell: bash
+      run: |
+        set -e
+        
+        echo "🚀 Starting deployment to Maven Central"
+        echo "📦 Deploying modules: ${{ inputs.modules }}"
+        
+        # Deploy with the central profile
+        # GPG passphrase is provided via MAVEN_GPG_PASSPHRASE env var
+        mvn -B deploy \
+          -P central \
+          -pl "${{ inputs.modules }}" \
+          -am \
+          -DskipTests \
+          --no-transfer-progress
+        
+        if [[ $? -ne 0 ]]; then
+          echo "❌ Deployment failed!" >&2
+          exit 1
+        fi
+        
+        echo "✅ Deployment to Maven Central completed successfully"
+      env:
+        MAVEN_GPG_PASSPHRASE: ${{ inputs.gpg_passphrase }}
+
+    # === GENERATE DEPLOYMENT SUMMARY ===
+    - name: Generate Deployment Summary
+      if: always()
+      shell: bash
+      run: |
+        # Create deployment summary for GitHub Actions
+        {
+          echo "# 📦 Maven Central Deployment Summary"
+          echo ""
+          echo "## 📊 Deployment Details"
+          echo ""
+          echo "| Property | Value |"
+          echo "|----------|-------|"
+          echo "| **Version** | \`${{ inputs.version }}\` |"
+          echo "| **Modules** | \`${{ inputs.modules }}\` |"
+          echo "| **Java Version** | \`${{ inputs.java_version }}\` |"
+          echo "| **Registry** | Maven Central |"
+          echo "| **Profile** | \`central\` |"
+          echo ""
+          echo "## 📍 Package Location"
+          echo ""
+          echo "Packages have been published to Maven Central:"
+          echo "- **URL**: https://central.sonatype.com/"
+          echo "- **Search**: https://search.maven.org/"
+          echo ""
+          echo "## 📝 Usage"
+          echo ""
+          echo "To use this version in your Maven project:"
+          echo "\`\`\`xml"
+          echo "<dependency>"
+          echo "  <groupId>io.cyborgcode.utilities</groupId>"
+          echo "  <artifactId>YOUR_ARTIFACT_ID</artifactId>"
+          echo "  <version>${{ inputs.version }}</version>"
+          echo "</dependency>"
+          echo "\`\`\`"
+          echo ""
+          echo "Note: It may take some time for the artifacts to be available in Maven Central."
+        } >> "$GITHUB_STEP_SUMMARY"

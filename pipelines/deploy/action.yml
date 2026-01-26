@@ -1,0 +1,212 @@
+name: Deploy Library (Composite)
+description: Build and deploy Maven libraries to GitHub Packages
+
+inputs:
+  # Version management
+  version_bump:
+    description: 'Version bump type (major, minor, patch, none)'
+    required: false
+    default: none
+
+
+  use_rc:
+    description: 'Create RC version (x.y.z-rc-N) when version_bump is major/minor/patch'
+    required: false
+    default: "false"
+  # Module selection
+  modules:
+    description: 'Comma-separated Maven modules to deploy (optional)'
+    required: false
+    default: ""
+
+  # Deployment configuration
+  deploy_server_id:
+    description: 'Maven server ID for deployment (-DaltDeploymentRepository)'
+    required: false
+    default: github
+
+  # Authentication
+  github_token:
+    description: 'GitHub token for Git operations and API access'
+    required: true
+  github_packages_user:
+    description: 'GitHub Packages username (optional, for external dependencies)'
+    required: false
+  github_packages_token:
+    description: 'GitHub Packages token (optional, for external dependencies)'
+    required: false
+
+  # Environment
+  java_version:
+    description: 'Java version to use'
+    required: false
+    default: "17"
+  server_ids:
+    description: 'Additional Maven server IDs to configure (comma-separated)'
+    required: false
+    default: ""
+
+outputs:
+  next_version:
+    description: 'Next version computed by version-management'
+    value: ${{ steps.version.outputs.next_version }}
+
+runs:
+  using: "composite"
+  steps:
+    # === INITIALIZATION ===
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for version tagging
+
+    - name: Setup Environment Variables
+      shell: bash
+      run: |
+        echo "OWNER=${GITHUB_REPOSITORY%%/*}" >> "$GITHUB_ENV"
+        echo "REPO=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_ENV"
+        echo "GITHUB_TOKEN=${{ inputs.github_token }}" >> "$GITHUB_ENV"
+
+    # === MAVEN & JAVA SETUP ===
+    - name: Setup Maven Environment
+      uses: CyborgCodeSyndicate/utilities/pipelines/shared/setup-maven@main
+      with:
+        java_version: ${{ inputs.java_version }}
+        server_ids: ${{ inputs.server_ids }}
+        github_packages_user: ${{ inputs.github_packages_user }}
+        github_packages_token: ${{ inputs.github_packages_token }}
+
+    # === VERSION MANAGEMENT ===
+    - name: Version Management
+
+      id: version
+      uses: CyborgCodeSyndicate/utilities/pipelines/shared/version-management@main
+      with:
+        version_bump: ${{ inputs.version_bump }}
+        enforce_main_branch: true
+        use_rc: ${{ inputs.use_rc }}
+
+    # === GIT OPERATIONS (for releases) ===
+    - name: Commit and Tag Release
+      if: ${{ steps.version.outputs.is_release == 'true' }}
+      shell: bash
+      run: |
+        set -e
+
+        VERSION="${{ steps.version.outputs.next_version }}"
+
+        IS_RC="${{ steps.version.outputs.is_rc }}"
+
+        echo "🏷️ Creating release commit and tag for version: $VERSION"
+
+        # Configure Git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Commit version changes
+        git add -A
+        if git diff-index --quiet HEAD --; then
+          echo "📝 No changes to commit"
+        else
+          git commit -m "chore(release): $VERSION"
+          echo "✅ Created release commit"
+        fi
+
+        # Create and push tag
+        git tag -a "v$VERSION" -m "Release v$VERSION"
+
+        if [[ "$IS_RC" == "true" ]]; then
+          echo "🧪 RC build: pushing TAG ONLY (not touching branch)"
+          git push origin "refs/tags/v$VERSION"
+        else
+          echo "🏁 Final release: pushing commit + tag"
+          git push --atomic origin HEAD "refs/tags/v$VERSION"
+        fi
+
+        echo "✅ Pushed release tag: v$VERSION"
+
+    # === DEPLOYMENT ===
+    - name: Deploy to GitHub Packages
+      shell: bash
+      run: |
+        set -e
+        
+        echo "🚀 Starting deployment to GitHub Packages"
+        
+        # Build deployment command
+        DEPLOY_CMD="mvn -B deploy"
+        
+        # Add module selection if specified
+        if [[ -n "${{ inputs.modules }}" ]]; then
+          echo "📦 Deploying specific modules: ${{ inputs.modules }}"
+          DEPLOY_CMD="$DEPLOY_CMD -pl \"${{ inputs.modules }}\" -am"
+        else
+          echo "📦 Deploying all modules"
+        fi
+        
+        # Configure deployment repository
+        DEPLOY_ID="${{ inputs.deploy_server_id }}"
+        DEPLOY_URL="https://maven.pkg.github.com/${OWNER}/${REPO}"
+        
+        echo "📍 Deployment configuration:"
+        echo "   Server ID: $DEPLOY_ID"
+        echo "   URL: $DEPLOY_URL"
+        
+        # Execute deployment
+        eval $DEPLOY_CMD \
+          -DskipTests \
+          -DaltDeploymentRepository="${DEPLOY_ID}::default::${DEPLOY_URL}" \
+          --no-transfer-progress
+        
+        echo "✅ Deployment completed successfully"
+
+    # === REPORTING ===
+    - name: Generate Deployment Summary
+      if: always()
+      shell: bash
+      run: |
+        # Create deployment summary for GitHub Actions
+        {
+          echo "# 📦 Deployment Summary"
+          echo ""
+          echo "## 📊 Deployment Details"
+          echo ""
+          echo "| Property | Value |"
+          echo "|----------|-------|"
+          echo "| **Version** | \`${{ steps.version.outputs.next_version }}\` |"
+          echo "| **Previous Version** | \`${{ steps.version.outputs.current_version }}\` |"
+          echo "| **Branch** | \`${{ steps.version.outputs.branch }}\` |"
+          echo "| **Bump Type** | \`${{ steps.version.outputs.bump_type }}\` |"
+        
+          if [[ "${{ steps.version.outputs.is_release }}" == "true" ]]; then
+            echo "| **Release Type** | ✅ Production Release |"
+            echo "| **Git Tag** | \`v${{ steps.version.outputs.next_version }}\` |"
+          else
+            echo "| **Release Type** | 📸 Snapshot Build |"
+          fi
+        
+          if [[ -n "${{ inputs.modules }}" ]]; then
+            echo "| **Modules** | \`${{ inputs.modules }}\` |"
+          else
+            echo "| **Modules** | All modules |"
+          fi
+        
+          echo ""
+          echo "## 📍 Package Location"
+          echo ""
+          echo "Packages have been published to:"
+          echo "- **Registry**: GitHub Packages"
+          echo "- **Repository**: \`${OWNER}/${REPO}\`"
+          echo "- **URL**: https://github.com/${OWNER}/${REPO}/packages"
+          echo ""
+          echo "## 📝 Usage"
+          echo ""
+          echo "To use this version in your Maven project:"
+          echo "\`\`\`xml"
+          echo "<dependency>"
+          echo "  <groupId>io.cyborgcode.GROUP_ID_SUFFIX</groupId>"
+          echo "  <artifactId>YOUR_ARTIFACT_ID</artifactId>"
+          echo "  <version>${{ steps.version.outputs.next_version }}</version>"
+          echo "</dependency>"
+          echo "\`\`\`"
+        } >> "$GITHUB_STEP_SUMMARY"
