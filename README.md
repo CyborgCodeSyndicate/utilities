@@ -1,6 +1,6 @@
 # Utilities
 
-A comprehensive collection of reusable libraries and tools for the Ring of Automation (ROA) framework.
+A comprehensive collection of reusable libraries and tools for the Cyborg Code Syndicate repositories.
 
 ## Table of contents
 
@@ -15,7 +15,7 @@ A comprehensive collection of reusable libraries and tools for the Ring of Autom
 
 ## Overview
 
-The `utilities` library provides the foundational and supporting building blocks shared across the Cyborg Code Syndicate ecosystem. It provides enterprise-grade utilities, CI/CD automation, and standardized tooling that powers modern test automation and development workflows.
+The `utilities` library provides the foundational and supporting building blocks shared across the Cyborg Code Syndicate ecosystem. It provides enterprise-grade utilities, CI/CD automation, and standardized tooling that powers modern development workflows.
 
 ## Project Structure
 
@@ -26,7 +26,6 @@ utilities/
 ├── pipelines/                  # GitHub Actions workflows
 ├── parent-pom/                 # Maven parent configuration
 ├── .github/workflows/          # CI/CD automation
-├── dependency-check-suppressions.xml
 └── pom.xml                     # Root aggregator POM
 ```
 
@@ -47,7 +46,7 @@ utilities/
 <parent>
   <groupId>io.cyborgcode.utilities</groupId>
   <artifactId>parent-pom</artifactId>
-  <version>1.3.1</version>
+  <version>RELEASE</version>
 </parent>
 ```
 
@@ -57,23 +56,35 @@ utilities/
 <dependency>
   <groupId>io.cyborgcode.utilities</groupId>
   <artifactId>commons</artifactId>
-  <version>1.3.1</version>
+  <version>RELEASE</version>
 </dependency>
 ```
 
-### GitHub Packages Authentication
+### Maven Central (recommended)
 
-Add to your `~/.m2/settings.xml`:
+Cyborg Code Syndicate artifacts are published to **Maven Central**, so in most cases you **do not need any GitHub Packages authentication**.
+Just add the dependency (Maven Central is used by default).
+
+### GitHub Packages authentication (optional)
+
+GitHub Packages is only needed if you **explicitly** want to consume artifacts from GitHub Packages (e.g., early-access builds like `-SNAPSHOT`, or if you’re mirroring releases there).  
+Note: For the **Maven** registry, GitHub Packages downloads are typically **authenticated**, even for public packages. :contentReference[oaicite:0]{index=0}
+
+<details>
+<summary>Use GitHub Packages (only if you really need it)</summary>
+
+Add this to your `~/.m2/settings.xml`:
 
 ```xml
 <servers>
   <server>
+    <!-- Must match the <repository><id>...</id> you use in your pom.xml -->
     <id>github-utilities</id>
     <username>YOUR_GITHUB_USERNAME</username>
     <password>YOUR_GITHUB_TOKEN</password>
   </server>
 </servers>
-```
+
 
 ## Author
 

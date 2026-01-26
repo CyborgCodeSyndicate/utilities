@@ -1,9 +1,10 @@
-﻿# parent-pom
+# parent-pom
 
 ## Table of contents
 
 - [Overview](#overview)
 - [Usage](#usage)
+- [BOM usage](#bom-usage)
 - [Dependency baseline](#dependency-baseline)
 - [Build & quality plugins](#build--quality-plugins)
 - [Security, reporting & distribution](#security-reporting--distribution)
@@ -12,12 +13,12 @@
 
 ## Overview
 
-`parent-pom` is the shared Maven parent published as `io.cyborgcode.utilities:parent-pom`. It inherits its coordinates from the root `utilities` aggregator so every downstream library starts from the same build contract.
+`parent-pom` is the shared Maven parent published as `io.cyborgcode.utilities:parent-pom`. Use it as the parent for every published module; the repo root module is only an aggregator and is not published to Maven Central.
 
 - Standardizes Java 17 compilation and UTF-8 encoding, and enforces Maven 3.8+ / Java 17 via the Enforcer plugin.
 - Centralizes dependency versions through BOM imports that cover logging, Spring Boot, serialization, API test clients, browsers, and the full JUnit/Mockito/TestNG stack.
 - Pre-configures compiler, test, lint, coverage, reporting, release, and security plugins so child projects only need to declare code.
-- Publishes releases and snapshots to GitHub Packages (`CyborgCodeSyndicate/utilities`) and exposes the internal GitHub-backed repositories required by other ROA assets.
+- Supports Maven Central publishing via the `central` profile. GitHub Packages publishing remains available via the `github` profile when needed.
 
 Use this parent whenever you are building a reusable library, plugin, or service within the Cyborg Code ecosystem. It guarantees that every consumer inherits the same QA gates and publication target.
 
@@ -29,9 +30,27 @@ Reference the module as your `<parent>` and keep the version aligned with the re
 <parent>
   <groupId>io.cyborgcode.utilities</groupId>
   <artifactId>parent-pom</artifactId>
-  <version>1.3.1</version>
+  <version>RELEASE</version>
   <relativePath>../parent-pom</relativePath> <!-- omit when the parent is pulled from GitHub Packages -->
 </parent>
+```
+
+## BOM usage
+
+If you cannot inherit from the parent (for example, when another repository already has its own parent), you can import `parent-pom` as a BOM to reuse the Cyborg Code Syndicate dependency versions:
+
+```xml
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>io.cyborgcode.utilities</groupId>
+      <artifactId>parent-pom</artifactId>
+      <version>RELEASE</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
 ```
 
 ## Dependency baseline
@@ -82,15 +101,15 @@ All critical plugins are defined under `<pluginManagement>` _and_ reiterated in 
 
 ### Distribution
 
-- `distributionManagement` pushes both releases and snapshots to `https://maven.pkg.github.com/CyborgCodeSyndicate/utilities` using the shared `github` server id.
-- `<repositories>` / `<pluginRepositories>` already include the ROA Utilities, Libraries, and Plugins GitHub Package feeds, so children automatically resolve internal artifacts.
-- Authenticate via a GitHub PAT with `read:packages` + `write:packages`; reference it through the `github` server in `settings.xml`.
+- Maven Central publishing is enabled via the `central` profile (GPG signing + Central publishing plugin).
+- GitHub Packages publishing is available via the `github` profile (auto-activated when `env.GITHUB_PACKAGES_TOKEN` is present) and also adds the internal GitHub-backed repositories used by other Cyborg Code Syndicate assets.
 
 ## Local workflows
 
 - `mvn -pl parent-pom clean verify` – fast signal that the parent still builds and all default plugins wire up.
 - `mvn -pl parent-pom -Ppr-validator verify` – runs the OWASP aggregate report exactly like CI.
 - `mvn -pl parent-pom site` – generates the aggregated HTML/SARIF reports under `parent-pom/target/site`.
+- `mvn -pl parent-pom -Pcentral deploy` – signs artifacts and publishes via Sonatype Central.
 - `mvn -pl parent-pom versions:display-dependency-updates versions:display-plugin-updates` – preview upcoming dependency/plugin bumps.
 - `mvn -pl parent-pom help:effective-pom -DforceStdout` – inspect the fully resolved configuration a child project inherits.
 

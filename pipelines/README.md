@@ -6,6 +6,7 @@
 - [Quick start](#quick-start)
 - [Actions reference](#actions-reference)
   - [Deploy action](#deploy-action)
+  - [Deploy to Maven Central action](#deploy-to-maven-central-action)
   - [PR validator action](#pr-validator-action)
   - [Shared actions](#shared-actions)
 - [Usage examples](#usage-examples)
@@ -22,6 +23,7 @@ The `pipelines` module provides reusable GitHub Actions workflows. This module c
 **Key capabilities:**
 
 - **Automated deployment** to GitHub Packages with semantic versioning
+- **Maven Central deployment** for tagged releases
 - **Comprehensive PR validation** including build, test, security scans, and quality gates
 - **Shared utilities** for Maven setup and version management
 - **Security-first approach** with OWASP dependency checking and static analysis
@@ -100,6 +102,30 @@ Builds and deploys Maven libraries to GitHub Packages with automated version man
 | `deploy_server_id` | `github` | Maven server ID for deployment |
 | `java_version` | `"17"` | Java version to use |
 
+### Deploy to Maven Central action
+
+**Path**: `pipelines/deploy-maven-central/action.yml`
+
+Deploys selected Maven modules to Maven Central using the `central` Maven profile.
+
+#### Key features
+
+- Deploys from an existing git tag (`v{version}`)
+- Builds with `-P central` and then deploys
+- Supports selective module deployment (`-pl ... -am`)
+- Creates GitHub Releases as prereleases when the version contains `-rc-`
+
+#### Required inputs
+
+| Input | Description |
+|-------|-------------|
+| `version` | Version to deploy (must match an existing tag, without the `v` prefix) |
+| `modules` | Comma-separated Maven modules to deploy |
+| `maven_central_username` | Maven Central (Sonatype) username |
+| `maven_central_token` | Maven Central (Sonatype) token |
+| `gpg_private_key` | Base64-encoded GPG private key used for signing |
+| `gpg_passphrase` | GPG passphrase |
+
 ### PR validator action
 
 **Path**: `pipelines/pr-validator/action.yml`
@@ -150,6 +176,7 @@ Handles semantic versioning and POM updates.
 
 **Features:**
 - Semantic version calculation (major.minor.patch)
+- Optional Release Candidate versions via `use_rc=true` (produces `x.y.z-rc-N`)
 - Snapshot version generation with unique identifiers
 - Branch-based release enforcement
 - Automated POM version updates
@@ -176,6 +203,31 @@ jobs:
         with:
           version_bump: patch
           github_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### Maven Central deployment workflow
+
+```yaml
+name: Deploy to Maven Central
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (must match an existing git tag. Example: 1.0.0)'
+        required: true
+
+jobs:
+  deploy-central:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: CyborgCodeSyndicate/utilities/pipelines/deploy-maven-central@main
+        with:
+          version: ${{ inputs.version }}
+          modules: "parent-pom,commons,shared-static-data"
+          maven_central_username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          maven_central_token: ${{ secrets.MAVEN_CENTRAL_TOKEN }}
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
 ```
 
 ### Advanced PR validation
@@ -205,16 +257,6 @@ jobs:
           java_version: "17"
 ```
 
-### Multi-module selective deployment
-
-```yaml
-- uses: CyborgCodeSyndicate/utilities/pipelines/deploy@main
-  with:
-    version_bump: minor
-    modules: "commons,shared-static-data"
-    github_token: ${{ secrets.GITHUB_TOKEN }}
-```
-
 ## Configuration
 
 ### Required secrets
@@ -226,6 +268,10 @@ Configure these secrets in your repository settings:
 | `SONAR_TOKEN` | SonarCloud authentication | PR validation |
 | `NVD_API_KEY` | OWASP dependency checking | Both actions |
 | `GITHUB_TOKEN` | Automatic (GitHub provides) | Both actions |
+| `MAVEN_CENTRAL_USERNAME` | Maven Central username | Maven Central deployment |
+| `MAVEN_CENTRAL_TOKEN` | Maven Central token | Maven Central deployment |
+| `GPG_PRIVATE_KEY` | Base64-encoded GPG private key | Maven Central deployment |
+| `GPG_PASSPHRASE` | Passphrase for the GPG key | Maven Central deployment |
 
 ### Maven profiles
 

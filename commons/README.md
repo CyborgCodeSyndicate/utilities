@@ -38,7 +38,7 @@ Add the dependency (align the version with your BOM or parent):
 <dependency>
   <groupId>io.cyborgcode.utilities</groupId>
   <artifactId>commons</artifactId>
-  <version>x.y.z</version>
+  <version>RELEASE</version>
 </dependency>
 ```
 
@@ -165,6 +165,7 @@ Expect an `IllegalStateException` when the predicate is still false at the end; 
 ## Reflection utilities
 
 The reflection helpers lean on `org.reflections.Reflections` to traverse the classpath while surfacing clear errors through `ReflectionException`.
+Most APIs accept optional package prefixes; when omitted, scanning uses the full base configuration.
 
 ### Enum discovery
 
@@ -190,6 +191,7 @@ List<Class<? extends MyInterface>> handlers =
 ```
 
 Results cover the entire inheritance tree beneath the provided package prefix.
+If you need to scan from a custom classpath (for example from a Maven plugin), override the base configuration via `ReflectionUtil.setBaseConfigurationBuilder(...)`.
 
 ### Field access helpers
 
@@ -201,7 +203,6 @@ The helper:
 
 - Walks the full class hierarchy looking for assignable fields.
 - Bypasses Java access checks to read private/protected members.
-- Verifies runtime values still match the requested type, otherwise throws `ReflectionException`.
 
 ## Configuration helpers
 
