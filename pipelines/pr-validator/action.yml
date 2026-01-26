@@ -254,23 +254,30 @@ runs:
     - name: SonarCloud Quality Gate
       id: sonar
       shell: bash
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar_token }}
       run: |
-        set -e
-        
+        set -euo pipefail
+
         echo "☁️ Running SonarCloud analysis"
-        echo "📋 Configuration:"
         echo "   Project: ${{ inputs.sonar_project_key }}"
         echo "   Organization: ${{ inputs.sonar_org }}"
-        
-        mvn -B sonar:sonar \
+
+        # If token is missing (common on Dependabot PRs), skip or fail—your choice:
+        if [[ -z "${SONAR_TOKEN}" ]]; then
+          echo "⚠️ SONAR_TOKEN is empty. Skipping SonarCloud for this run."
+          exit 0
+        fi
+
+        mvn -B \
           -P${{ inputs.maven_profiles }} \
           -Dsonar.projectKey=${{ inputs.sonar_project_key }} \
           -Dsonar.organization=${{ inputs.sonar_org }} \
-          -Dsonar.token=${{ inputs.sonar_token }} \
+          -Dsonar.token="${SONAR_TOKEN}" \
           -Dsonar.qualitygate.wait=true \
           -Dsonar.host.url=https://sonarcloud.io \
+          org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
           --no-transfer-progress
-        
         echo "✅ SonarCloud analysis completed successfully"
 
     # === SUMMARY REPORTING ===

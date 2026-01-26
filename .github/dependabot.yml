@@ -15,30 +15,13 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    ignore:
+      - dependency-name: "com.puppycrawl.tools:checkstyle"
     groups:
       parent-pom:
         patterns:
           - "*"
 
-  # 2) Maven: commons (only matters if commons has any explicit versions left, or its own plugins)
-  #    If commons only declares deps WITHOUT versions (inherited from parent-pom), this will usually produce zero PRs.
-  - package-ecosystem: "maven"
-    directory: "/commons"
-    target-branch: "main"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "06:10"
-      timezone: "Europe/Skopje"
-    open-pull-requests-limit: 10
-    labels: ["dependencies"]
-    commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
-    groups:
-      commons:
-        patterns:
-          - "*"
 
   # 3) GitHub Actions: update marketplace actions in workflow files (.github/workflows/**)
   - package-ecosystem: "github-actions"
