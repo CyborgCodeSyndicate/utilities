@@ -19,6 +19,9 @@ The `utilities` library provides the foundational and supporting building blocks
 
 ## Project Structure
 
+<details>
+<summary>Show structure</summary>
+
 ```
 utilities/
 ├── commons/                    # Core utilities library
@@ -29,7 +32,12 @@ utilities/
 └── pom.xml                     # Root aggregator POM
 ```
 
+</details>
+
 ## Modules
+
+<details>
+<summary>Show modules</summary>
 
 | Module | Description | Key Features | Documentation |
 |--------|-------------|--------------|---------------|
@@ -38,9 +46,14 @@ utilities/
 | `pipelines` | Reusable GitHub Actions for CI/CD automation | • Automated library deployment with semantic versioning<br>• Comprehensive PR validation with security scanning<br>• Maven setup and version management helpers<br>• Quality gates and SonarCloud integration | [📖 README](pipelines/README.md) |
 | `parent-pom` | Centralized Maven configuration and dependency management | • Version-managed BOM for 50+ libraries<br>• Pre-configured Maven plugins with sensible defaults<br>• Quality enforcement (CheckStyle, SpotBugs, JaCoCo, OWASP)<br>• Environment-specific build profiles | [📖 README](parent-pom/README.md) |
 
+</details>
+
 ## Quick start
 
 ### Using the Parent POM
+
+<details>
+<summary>Show parent POM snippet</summary>
 
 ```xml
 <parent>
@@ -50,7 +63,12 @@ utilities/
 </parent>
 ```
 
+</details>
+
 ### Adding Individual Modules
+
+<details>
+<summary>Show dependency snippet</summary>
 
 ```xml
 <dependency>
@@ -59,6 +77,8 @@ utilities/
   <version>RELEASE</version>
 </dependency>
 ```
+
+</details>
 
 ### Maven Central (recommended)
 
@@ -84,7 +104,9 @@ Add this to your `~/.m2/settings.xml`:
     <password>YOUR_GITHUB_TOKEN</password>
   </server>
 </servers>
+```
 
+</details>
 
 ## Author
 

@@ -33,6 +33,9 @@ The `pipelines` module provides reusable GitHub Actions workflows. This module c
 
 Reference these actions in your GitHub workflows by pointing to the specific action path:
 
+<details>
+<summary>Show deploy workflow example</summary>
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy
@@ -50,6 +53,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           nvd_api_key: ${{ secrets.NVD_API_KEY }}
 ```
+
+</details>
+
+<details>
+<summary>Show PR validator workflow example</summary>
 
 ```yaml
 # .github/workflows/pr-validator.yml
@@ -71,6 +79,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+</details>
+
 ## Actions reference
 
 ### Deploy action
@@ -89,11 +99,19 @@ Builds and deploys Maven libraries to GitHub Packages with automated version man
 
 #### Required inputs
 
+<details>
+<summary>Show inputs</summary>
+
 | Input | Description |
 |-------|-------------|
 | `github_token` | GitHub token for Git operations and package publishing |
 
+</details>
+
 #### Optional inputs
+
+<details>
+<summary>Show inputs</summary>
 
 | Input | Default | Description |
 |-------|---------|-------------|
@@ -101,6 +119,8 @@ Builds and deploys Maven libraries to GitHub Packages with automated version man
 | `modules` | `""` | Comma-separated Maven modules to deploy |
 | `deploy_server_id` | `github` | Maven server ID for deployment |
 | `java_version` | `"17"` | Java version to use |
+
+</details>
 
 ### Deploy to Maven Central action
 
@@ -117,6 +137,9 @@ Deploys selected Maven modules to Maven Central using the `central` Maven profil
 
 #### Required inputs
 
+<details>
+<summary>Show inputs</summary>
+
 | Input | Description |
 |-------|-------------|
 | `version` | Version to deploy (must match an existing tag, without the `v` prefix) |
@@ -125,6 +148,8 @@ Deploys selected Maven modules to Maven Central using the `central` Maven profil
 | `maven_central_token` | Maven Central (Sonatype) token |
 | `gpg_private_key` | Base64-encoded GPG private key used for signing |
 | `gpg_passphrase` | GPG passphrase |
+
+</details>
 
 ### PR validator action
 
@@ -143,6 +168,9 @@ Comprehensive PR validation with build verification, testing, security scanning,
 
 #### Required inputs
 
+<details>
+<summary>Show inputs</summary>
+
 | Input | Description |
 |-------|-------------|
 | `sonar_project_key` | SonarCloud project identifier |
@@ -151,13 +179,20 @@ Comprehensive PR validation with build verification, testing, security scanning,
 | `nvd_api_key` | NVD API key for OWASP dependency checking |
 | `github_token` | GitHub token for PR comments and API access |
 
+</details>
+
 #### Optional inputs
+
+<details>
+<summary>Show inputs</summary>
 
 | Input | Default | Description |
 |-------|---------|-------------|
 | `java_version` | `"17"` | Java version to use |
 | `maven_profiles` | `pr-validator` | Maven profiles to activate |
 | `skip_tests` | `false` | Skip test execution (not recommended) |
+
+</details>
 
 ### Shared actions
 
@@ -185,6 +220,9 @@ Handles semantic versioning and POM updates.
 
 ### Basic deployment workflow
 
+<details>
+<summary>Show example</summary>
+
 ```yaml
 name: Deploy Library
 on:
@@ -205,7 +243,12 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
+</details>
+
 ### Maven Central deployment workflow
+
+<details>
+<summary>Show example</summary>
 
 ```yaml
 name: Deploy to Maven Central
@@ -230,7 +273,12 @@ jobs:
           gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
 ```
 
+</details>
+
 ### Advanced PR validation
+
+<details>
+<summary>Show example</summary>
 
 ```yaml
 name: Comprehensive PR Validation
@@ -257,11 +305,16 @@ jobs:
           java_version: "17"
 ```
 
+</details>
+
 ## Configuration
 
 ### Required secrets
 
 Configure these secrets in your repository settings:
+
+<details>
+<summary>Show required secrets</summary>
 
 | Secret | Purpose | Required For |
 |--------|---------|--------------|
@@ -273,6 +326,8 @@ Configure these secrets in your repository settings:
 | `GPG_PRIVATE_KEY` | Base64-encoded GPG private key | Maven Central deployment |
 | `GPG_PASSPHRASE` | Passphrase for the GPG key | Maven Central deployment |
 
+</details>
+
 ### Maven profiles
 
 The actions expect certain Maven profiles to be configured:
@@ -282,7 +337,8 @@ The actions expect certain Maven profiles to be configured:
 
 ### Repository permissions
 
-Ensure your workflow has appropriate permissions:
+<details>
+<summary>Show permissions snippet</summary>
 
 ```yaml
 permissions:
@@ -291,6 +347,8 @@ permissions:
   pull-requests: write   # For PR comments and status
   security-events: write # For SARIF uploads
 ```
+
+</details>
 
 ## Security considerations
 

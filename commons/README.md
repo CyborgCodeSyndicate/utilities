@@ -66,7 +66,10 @@ The logging API wraps Log4j2 so you can use structured, marker-aware logging wit
 
 ### Static API
 
-```
+<details>
+<summary>Show example</summary>
+
+```java
 import io.cyborgcode.utilities.logging.LogCommon;
 
 LogCommon.info("Starting job {}", jobId);
@@ -79,6 +82,8 @@ LogCommon.trace("Entering {}", methodName);
 LogCommon.step("Open login page");
 LogCommon.extended("Raw response: {}", rawBody);
 ```
+
+</details>
 
 ### Custom levels
 
@@ -107,6 +112,9 @@ Enable them via JVM args:
 
 `commons` does not ship a ready-made `log4j2.xml`. Configure appenders in the consuming app. A minimal JSON console setup:
 
+<details>
+<summary>Show minimal configuration</summary>
+
 ```xml
 <Configuration status="WARN">
   <Appenders>
@@ -125,11 +133,16 @@ Enable them via JVM args:
 </Configuration>
 ```
 
+</details>
+
 ### Extensibility
 
 Need to intercept logs (for example, while unit testing) or redirect them temporarily? Swap the singleton with a custom `LogCommon` instance:
 
-```
+<details>
+<summary>Show example</summary>
+
+```java
 LogCommon custom = Mockito.mock(LogCommon.class); // or any LogCommon-compatible test double
 LogCommon.extend(custom);
 
@@ -139,11 +152,16 @@ LogCommon.extend(custom);
 LogCommon.extend(null);
 ```
 
+</details>
+
 Passing `null` resets the singleton so the next log call recreates the default implementation. `LogCyborg` exposes helpers to fetch loggers or markers directly if you want finer-grained control without replacing the singleton.
 
 ## Retry utilities
 
 `RetryUtils.retryUntil` polls until a predicate is met or time runs out. It validates inputs, emits informative logs, and suppresses the last failure on timeout to keep stack traces available.
+
+<details>
+<summary>Show example</summary>
 
 ```java
 String response = RetryUtils.retryUntil(
@@ -153,6 +171,8 @@ String response = RetryUtils.retryUntil(
     body -> body != null && body.contains("OK")
 );
 ```
+
+</details>
 
 During retries the helper:
 
@@ -169,35 +189,55 @@ Most APIs accept optional package prefixes; when omitted, scanning uses the full
 
 ### Enum discovery
 
+<details>
+<summary>Show example</summary>
+
 ```java
 List<Class<? extends Enum>> candidates =
     ReflectionUtil.findEnumClassImplementationsOfInterface(MyInterface.class, "com.acme.enums");
 ```
 
+</details>
+
 Use that list to inspect enum types or convert to constants. A convenience method finds a single constant by name:
+
+<details>
+<summary>Show example</summary>
 
 ```java
 MyInterface constant = ReflectionUtil.findEnumImplementationsOfInterface(
     MyInterface.class, "MY_CONSTANT", "com.acme.enums");
 ```
 
+</details>
+
 Ambiguous or missing matches raise a `ReflectionException`.
 
 ### Implementation scanning
+
+<details>
+<summary>Show example</summary>
 
 ```java
 List<Class<? extends MyInterface>> handlers =
     ReflectionUtil.findImplementationsOfInterface(MyInterface.class, "com.acme.plugins");
 ```
 
+</details>
+
 Results cover the entire inheritance tree beneath the provided package prefix.
 If you need to scan from a custom classpath (for example from a Maven plugin), override the base configuration via `ReflectionUtil.setBaseConfigurationBuilder(...)`.
 
 ### Field access helpers
 
+<details>
+<summary>Show example</summary>
+
 ```java
 List<MyType> values = ReflectionUtil.getFieldValues(target, MyType.class);
 ```
+
+</details>
 
 The helper:
 
@@ -207,6 +247,9 @@ The helper:
 ## Configuration helpers
 
 Define strongly typed Owner configs that share a common base and metadata:
+
+<details>
+<summary>Show example</summary>
 
 ```java
 @ConfigSource("app")
@@ -218,6 +261,8 @@ public interface AppConfig extends PropertyConfig {
 
 AppConfig config = ConfigFactory.create(AppConfig.class);
 ```
+
+</details>
 
 `@ConfigSource` gives you a canonical identifier for wiring or documentation, while `PropertyConfig` keeps all configs aligned on the Owner `Config` interface.
 

@@ -26,6 +26,9 @@ Use this parent whenever you are building a reusable library, plugin, or service
 
 Reference the module as your `<parent>` and keep the version aligned with the repo release tag you consume:
 
+<details>
+<summary>Show parent snippet</summary>
+
 ```xml
 <parent>
   <groupId>io.cyborgcode.utilities</groupId>
@@ -35,9 +38,14 @@ Reference the module as your `<parent>` and keep the version aligned with the re
 </parent>
 ```
 
+</details>
+
 ## BOM usage
 
 If you cannot inherit from the parent (for example, when another repository already has its own parent), you can import `parent-pom` as a BOM to reuse the Cyborg Code Syndicate dependency versions:
+
+<details>
+<summary>Show BOM import snippet</summary>
 
 ```xml
 <dependencyManagement>
@@ -53,9 +61,14 @@ If you cannot inherit from the parent (for example, when another repository alre
 </dependencyManagement>
 ```
 
+</details>
+
 ## Dependency baseline
 
 `parent-pom` aggregates the versions for commonly used libraries so that every module compiles and tests against the same stack:
+
+<details>
+<summary>Show dependency baseline</summary>
 
 | Area | Highlights |
 | --- | --- |
@@ -66,11 +79,16 @@ If you cannot inherit from the parent (for example, when another repository alre
 | Automation & browsers | `org.seleniumhq.selenium:selenium-dependencies-bom`, `selenium-java`, `io.github.bonigarcia:webdrivermanager`. |
 | Build tooling | `org.ow2.asm:asm(-bom)`, `com.github.spotbugs:spotbugs-annotations`, `org.checkerframework:checker-qual`, `org.codehaus.plexus:*`, `org.apache.maven:maven-(plugin-api|core)`, `com.google.errorprone:error_prone_annotations`. |
 
+</details>
+
 Anything listed above can be used from a child module with just a `<dependency>` declaration. If a library is missing, add it here first so the rest of the ecosystem benefits from the change.
 
 ## Build & quality plugins
 
 All critical plugins are defined under `<pluginManagement>` _and_ reiterated in `<build><plugins>` so they are always active in children:
+
+<details>
+<summary>Show plugins</summary>
 
 | Plugin | Highlights |
 | --- | --- |
@@ -84,6 +102,8 @@ All critical plugins are defined under `<pluginManagement>` _and_ reiterated in 
 | `spotbugs-maven-plugin` | Generates XML/HTML/SARIF findings into `target/spotbugs` using the central exclude filter from `shared-static-data`. |
 | `maven-resources` / `maven-clean` | Keep resource filtering UTF-8 aligned and ensure clean phases wipe previous artifacts. |
 | `maven-release-plugin` | Coordinates `release:prepare` / `release:perform` with `pushChanges=false` so maintainers review and push the commits/tags manually. |
+
+</details>
 
 ## Security, reporting & distribution
 
@@ -106,6 +126,9 @@ All critical plugins are defined under `<pluginManagement>` _and_ reiterated in 
 
 ## Local workflows
 
+<details>
+<summary>Show commands</summary>
+
 - `mvn -pl parent-pom clean verify` – fast signal that the parent still builds and all default plugins wire up.
 - `mvn -pl parent-pom -Ppr-validator verify` – runs the OWASP aggregate report exactly like CI.
 - `mvn -pl parent-pom site` – generates the aggregated HTML/SARIF reports under `parent-pom/target/site`.
@@ -113,11 +136,16 @@ All critical plugins are defined under `<pluginManagement>` _and_ reiterated in 
 - `mvn -pl parent-pom versions:display-dependency-updates versions:display-plugin-updates` – preview upcoming dependency/plugin bumps.
 - `mvn -pl parent-pom help:effective-pom -DforceStdout` – inspect the fully resolved configuration a child project inherits.
 
+</details>
+
 ## Maintainer notes
 
 - Properties under `<properties>` are the single source of truth for dependency and plugin versions. Update them here, then open release PRs for the modules that rely on the new versions.
 - When OWASP raises noise, prefer tuning `/dependency-check-suppressions.xml` instead of disabling the plugin.
 - Configure credentials and the NVD key once in `~/.m2/settings.xml`:
+
+<details>
+<summary>Show settings.xml example</summary>
 
 ```xml
 <settings>
@@ -141,3 +169,5 @@ All critical plugins are defined under `<pluginManagement>` _and_ reiterated in 
   </activeProfiles>
 </settings>
 ```
+
+</details>
