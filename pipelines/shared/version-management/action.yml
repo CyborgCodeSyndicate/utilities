@@ -1,0 +1,155 @@
+name: Version Management
+description: Compute and optionally bump project version
+
+inputs:
+  version_bump:
+    description: 'Version bump type (major, minor, patch, none)'
+    required: false
+    default: none
+  use_rc:
+    description: 'If true, produce x.y.z-rc-N for major/minor/patch bumps'
+    required: false
+    default: "false"
+  enforce_main_branch:
+    description: 'Enforce that version bumps only happen on main branch'
+    required: false
+    default: "true"
+
+outputs:
+  current_version:
+    description: 'Current project version'
+    value: ${{ steps.compute.outputs.current }}
+  next_version:
+    description: 'Next version to use'
+    value: ${{ steps.compute.outputs.next }}
+  bump_type:
+    description: 'Version bump type applied'
+    value: ${{ steps.compute.outputs.bump }}
+  branch:
+    description: 'Current branch name'
+    value: ${{ steps.compute.outputs.branch }}
+  is_release:
+    description: 'Whether this is a release version (not snapshot)'
+    value: ${{ steps.compute.outputs.is_release }}
+
+  is_rc:
+    description: 'Whether the computed version is a Release Candidate (rc)'
+    value: ${{ steps.compute.outputs.is_rc }}
+runs:
+  using: "composite"
+  steps:
+    - name: Compute Version
+      id: compute
+      shell: bash
+      run: |
+        set -euo pipefail
+        
+        # Inputs
+        BUMP_TYPE="${{ inputs.version_bump }}"
+        USE_RC="${{ inputs.use_rc }}"
+        CURRENT_BRANCH="${GITHUB_REF#refs/heads/}"
+        
+        # Branch restrictions:
+        # - If enforce_main_branch=true, non-main is allowed only for:
+        #   * patch bumps (hotfix) OR
+        #   * RC builds (use_rc=true)
+        if [[ "${{ inputs.enforce_main_branch }}" == "true" ]] &&    [[ "$BUMP_TYPE" != "none" ]] &&    [[ "$CURRENT_BRANCH" != "main" ]]; then
+        if [[ "$BUMP_TYPE" != "patch" && "$USE_RC" != "true" ]]; then
+         echo "❌ Version bump '$BUMP_TYPE' is only allowed on the main branch (non-main allowed for patch bumps or RC builds)." >&2
+         echo "   Current branch: $CURRENT_BRANCH" >&2
+         exit 1
+        fi
+        fi
+        
+        # Ensure tags available when computing RC numbers
+        git fetch --force --tags >/dev/null 2>&1 || true
+        
+        # Get current version from POM
+        echo "📖 Reading current version from pom.xml..."
+        CURRENT_VERSION=$(mvn -q -Dexpression=project.version -DforceStdout help:evaluate 2>/dev/null || echo "")
+        if [[ -z "$CURRENT_VERSION" ]]; then
+        echo "❌ Failed to determine project version from pom.xml" >&2
+        exit 1
+        fi
+        echo "   Current version: $CURRENT_VERSION"
+        
+        # Normalize base version for calculations:
+        # - strip snapshots like 1.2.3-SNAPSHOT or 1.2.3-SNAPSHOT-<sha>-<run>
+        # - strip rc suffix like 1.2.3-rc-4
+        BASE_VERSION="$CURRENT_VERSION"
+        BASE_VERSION="${BASE_VERSION%-SNAPSHOT*}"
+        BASE_VERSION="${BASE_VERSION%-rc-*}"
+        
+        IFS='.' read -ra VERSION_PARTS <<< "$BASE_VERSION"
+        MAJOR=${VERSION_PARTS[0]:-0}
+        MINOR=${VERSION_PARTS[1]:-0}
+        PATCH=${VERSION_PARTS[2]:-0}
+        
+        IS_RELEASE="false"
+        IS_RC="false"
+        
+        case "$BUMP_TYPE" in
+        major)
+         MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0
+         TARGET="${MAJOR}.${MINOR}.${PATCH}"
+         IS_RELEASE="true"
+         ;;
+        minor)
+         MINOR=$((MINOR + 1)); PATCH=0
+         TARGET="${MAJOR}.${MINOR}.${PATCH}"
+         IS_RELEASE="true"
+         ;;
+        patch)
+         PATCH=$((PATCH + 1))
+         TARGET="${MAJOR}.${MINOR}.${PATCH}"
+         IS_RELEASE="true"
+         ;;
+        none|*)
+         GIT_SHA=$(git rev-parse --short HEAD)
+         RUN_ID="${GITHUB_RUN_ID:-0}"
+         NEXT_VERSION="${BASE_VERSION}-SNAPSHOT-${GIT_SHA}-${RUN_ID}"
+         IS_RELEASE="false"
+         ;;
+        esac
+        
+        if [[ "$IS_RELEASE" == "true" ]]; then
+        if [[ "$USE_RC" == "true" ]]; then
+         MAX_RC=0
+         for t in $(git tag -l "v${TARGET}-rc-*" "${TARGET}-rc-*"); do
+           n="${t##*-rc-}"
+           if [[ "$n" =~ ^[0-9]+$ ]] && (( n > MAX_RC )); then
+             MAX_RC=$n
+           fi
+         done
+         NEXT_RC=$((MAX_RC + 1))
+         NEXT_VERSION="${TARGET}-rc-${NEXT_RC}"
+         IS_RC="true"
+        else
+         NEXT_VERSION="${TARGET}"
+         IS_RC="false"
+        fi
+        fi
+        
+        echo "📊 Version calculation results:"
+        echo "   Bump type:  $BUMP_TYPE"
+        echo "   Use RC:     $USE_RC"
+        echo "   Next:       $NEXT_VERSION"
+        echo "   Is release: $IS_RELEASE"
+        echo "   Is RC:      $IS_RC"
+        
+        echo "current=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
+        echo "next=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
+        echo "bump=$BUMP_TYPE" >> "$GITHUB_OUTPUT"
+        echo "branch=$CURRENT_BRANCH" >> "$GITHUB_OUTPUT"
+        echo "is_release=$IS_RELEASE" >> "$GITHUB_OUTPUT"
+        echo "is_rc=$IS_RC" >> "$GITHUB_OUTPUT"
+
+    - name: Update POM Version
+      shell: bash
+      run: |
+        echo "📝 Updating pom.xml to version: ${{ steps.compute.outputs.next }}"
+        mvn -B versions:set \
+        -DnewVersion=${{ steps.compute.outputs.next }} \
+        -DprocessAllModules=true \
+        -DgenerateBackupPoms=false \
+        --no-transfer-progress

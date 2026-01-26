@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <!-- 1) Basic Properties -->
+    <Properties>
+        <Property name="LogFilePath">${sys:logFileName:-logs/cyborgLog.log}</Property>
+        <Property name="log4j2.scriptEnableLanguages">${sys:log4j2.scriptEnableLanguages:-javascript}</Property>
+        <Property name="extendedLogging">${sys:extended.logging:-false}</Property>
+    </Properties>
+
+    <!-- 2) Custom Levels -->
+    <CustomLevels>
+        <CustomLevel name="STEP" intLevel="350"/>
+        <CustomLevel name="VALIDATION" intLevel="350"/>
+        <CustomLevel name="EXTENDED" intLevel="350"/>
+    </CustomLevels>
+
+    <!-- 3) Appenders -->
+    <Appenders>
+
+        <!-- ========== FILE APPENDER (Pattern) ========== -->
+        <File name="FileAppender" fileName="${LogFilePath}" append="false">
+
+            <!-- Filter out logs if extendedLogging == true (so they can go to JSON appender) -->
+            <Filters>
+                <ScriptFilter onMatch="ACCEPT" onMismatch="DENY">
+                    <Script name="HandleExtendedLoggingDeny" language="JavaScript"><![CDATA[
+                        function handleExtendedLoggingDeny(logEvent) {
+                            // Use Java's System.getProperty(...) instead of loggerContext
+                            // Default is "false" if not set
+                            var ext = java.lang.System.getProperty("extendedLogging", "false");
+                            // If extendedLogging == "true", deny (so logs go to JSON appender),
+                            // otherwise accept.
+                            return (ext === "true") ? false : true;
+                        }
+                        handleExtendedLoggingDeny(logEvent);
+                    ]]></Script>
+                </ScriptFilter>
+            </Filters>
+
+            <PatternLayout>
+                <ScriptPatternSelector>
+                    <!-- Decide if testName is set -->
+                    <Script name="decidePatternFile" language="JavaScript"><![CDATA[
+                        function decidePatternFile(logEvent) {
+                            var testName = logEvent.getContextData().getValue("testName");
+                            if (!testName || testName.isEmpty()) {
+                                return "noTest";
+                            }
+                            return "withTest";
+                        }
+                        decidePatternFile(logEvent);
+                    ]]></Script>
+
+                    <PatternMatch key="noTest"
+                                  pattern="🤖 CYBORG 🤖 %d{ISO8601} %-5level [%marker] - %m%n"/>
+                    <PatternMatch key="withTest"
+                                  pattern="🤖 CYBORG 🤖 %d{ISO8601} [scenario=%X{testName}] %-5level [%marker] - %m%n"/>
+                </ScriptPatternSelector>
+            </PatternLayout>
+        </File>
+
+        <!-- ========== JSON APPENDER (Extended Logging) ========== -->
+        <File name="JsonFileAppender" fileName="${LogFilePath}" append="false">
+            <!-- Accept only if extendedLogging == "true" -->
+            <Filters>
+                <ScriptFilter onMatch="ACCEPT" onMismatch="DENY">
+                    <Script name="HandleExtendedLoggingAccept" language="JavaScript"><![CDATA[
+                        function handleExtendedLoggingAccept(logEvent) {
+                            var ext = java.lang.System.getProperty("extendedLogging", "false");
+                            // Only accept if extendedLogging == "true"
+                            return (ext === "true");
+                        }
+                        handleExtendedLoggingAccept(logEvent);
+                    ]]></Script>
+                </ScriptFilter>
+            </Filters>
+            <!-- Use your JSON template here -->
+            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"/>
+        </File>
+
+        <!-- ========== CONSOLE APPENDER ========== -->
+        <Console name="Console">
+            <PatternLayout>
+                <ScriptPatternSelector>
+                    <Script name="decidePatternConsole" language="JavaScript"><![CDATA[
+                        function decidePatternConsole(logEvent) {
+                            var testName = logEvent.getContextData().getValue("testName");
+                            if (!testName || testName.isEmpty()) {
+                                return "noTest";
+                            }
+                            return "withTest";
+                        }
+                        decidePatternConsole(logEvent);
+                    ]]></Script>
+
+                    <PatternMatch key="noTest"
+                                  pattern="🤖 CYBORG 🤖 %d{ISO8601} %-5level [%marker] - %m%n"/>
+                    <PatternMatch key="withTest"
+                                  pattern="🤖 CYBORG 🤖 %d{ISO8601} [scenario=%X{testName}] %-5level [%marker] - %m%n"/>
+                </ScriptPatternSelector>
+            </PatternLayout>
+        </Console>
+    </Appenders>
+
+    <!-- 4) Loggers -->
+    <Loggers>
+        <Logger name="org.reflections" level="OFF" additivity="false"/>
+
+        <Root level="info">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="JsonFileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

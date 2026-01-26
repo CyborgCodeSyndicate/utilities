@@ -1,0 +1,20 @@
+# Build outputs (all modules)
+target/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+
+# Maven wrapper (keep)
+!mvnw
+!mvnw.cmd
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+*.iml

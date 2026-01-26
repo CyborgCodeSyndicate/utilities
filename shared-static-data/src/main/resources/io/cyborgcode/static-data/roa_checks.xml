@@ -1,0 +1,542 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+
+  <property name="charset" value="UTF-8"/>
+
+  <property name="severity" value="${org.checkstyle.google.severity}" default="warning"/>
+
+  <property name="fileExtensions" value="java, properties, xml"/>
+
+  <!-- Allows you to exclude specific files from Checkstyle checks before execution based on a file name pattern -->
+  <module name="BeforeExecutionExclusionFileFilter">
+    <property name="fileNamePattern" value="module\-info\.java$"/>
+  </module>
+
+  <!-- Suppresses Checkstyle checks based on the presence of the @SuppressWarnings annotation -->
+  <module name="SuppressWarningsFilter"/>
+
+  <!-- Checks if the length of any line in the file exceeds a specified limit, and allows you to ignore
+  certain patterns (e.g., package, import) -->
+  <module name="LineLength">
+    <property name="fileExtensions" value="java"/>
+    <property name="max" value="120"/>
+    <property name="ignorePattern"
+              value="^package.*|^import.*|href\s*=\s*&quot;[^&quot;]*&quot;|http://|https://|ftp://"/>
+  </module>
+
+  <!-- Core Checkstyle module that is used to organize and apply other Checkstyle checks to Java source code files -->
+  <module name="TreeWalker">
+
+    <!-- Enforce a rule that ensures the name of a Java class, interface, enum, or annotation matches
+      the filename of the file that contains it -->
+    <module name="OuterTypeFilename"/>
+
+    <!-- Check whether certain tokens (like string or character literals) contain illegal escape
+      sequences, such as octal or Unicode escape sequences -->
+    <module name="IllegalTokenText">
+      <property name="tokens" value="STRING_LITERAL, CHAR_LITERAL"/>
+      <property name="format"
+                value="\\u00(09|0(a|A)|0(c|C)|0(d|D)|22|27|5(C|c))|\\(0(10|11|12|14|15|42|47)|134)"/>
+      <property name="message"
+                value="Consider using special escape sequence instead of octal value or Unicode escaped value."/>
+    </module>
+
+    <!-- Checks for the use of escaped Unicode characters and suggests avoiding them, except
+      for certain control characters -->
+    <module name="AvoidEscapedUnicodeCharacters">
+      <property name="allowEscapesForControlCharacters" value="true"/>
+      <property name="allowByTailComment" value="true"/>
+      <property name="allowNonPrintableEscapes" value="true"/>
+    </module>
+
+    <!-- Enforces the rule of not using star imports (import java.util.*;), promoting explicit imports instead -->
+    <module name="AvoidStarImport"/>
+
+    <!-- Ensures that there is only one top-level class (i.e., public class or interface) in a file -->
+    <module name="OneTopLevelClass"/>
+
+    <!-- Enforces that certain tokens (PACKAGE_DEF, IMPORT, STATIC_IMPORT) should not be wrapped to a new line -->
+    <module name="NoLineWrap">
+      <property name="tokens" value="PACKAGE_DEF, IMPORT, STATIC_IMPORT"/>
+    </module>
+
+    <!-- ensures that control statements like if, for, while, else, do always have braces, even if the body
+      consists of a single statement -->
+    <module name="NeedBraces">
+      <property name="tokens"
+                value="LITERAL_DO, LITERAL_ELSE, LITERAL_FOR, LITERAL_IF, LITERAL_WHILE"/>
+    </module>
+
+    <!-- Enforces that the opening curly brace for certain statements must appear at the end of the line -->
+    <module name="LeftCurly">
+      <property name="id" value="LeftCurlyEol"/>
+      <property name="tokens"
+                value="ANNOTATION_DEF, CLASS_DEF, CTOR_DEF, ENUM_CONSTANT_DEF, ENUM_DEF,
+                    INTERFACE_DEF, LAMBDA, LITERAL_CATCH,
+                    LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF,
+                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, METHOD_DEF,
+                    OBJBLOCK, STATIC_INIT, RECORD_DEF, COMPACT_CTOR_DEF"/>
+    </module>
+
+    <!-- Enforces that the opening curly brace for certain statements appears on a new line -->
+    <module name="LeftCurly">
+      <property name="id" value="LeftCurlyNl"/>
+      <property name="option" value="nl"/>
+      <property name="tokens"
+                value="LITERAL_DEFAULT"/>
+    </module>
+
+    <!-- Suppress specific checks for certain parts of the code based on an XPath query -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="id" value="LeftCurlyNl"/>
+      <property name="query" value="//SWITCH_RULE/SLIST"/>
+    </module>
+
+    <!-- Checks for the placement of the closing curly braces (}) for certain control structures -->
+    <module name="RightCurly">
+      <property name="id" value="RightCurlySame"/>
+      <property name="tokens"
+                value="LITERAL_TRY, LITERAL_CATCH, LITERAL_IF, LITERAL_ELSE,
+                    LITERAL_DO"/>
+    </module>
+
+    <!-- Checks for the placement of closing curly braces (}) for various Java structures -->
+    <module name="RightCurly">
+      <property name="id" value="RightCurlyAlone"/>
+      <property name="option" value="alone"/>
+      <property name="tokens"
+                value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT,
+                    INSTANCE_INIT, ANNOTATION_DEF, ENUM_DEF, INTERFACE_DEF, RECORD_DEF,
+                    COMPACT_CTOR_DEF, LITERAL_SWITCH, LITERAL_FINALLY"/>
+    </module>
+
+    <!-- Suppress specific checks for certain parts of the code based on an XPath query -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="id" value="RightCurlyAlone"/>
+      <property name="query" value="//RCURLY[parent::SLIST[count(./*)=1]
+                                     or preceding-sibling::*[last()][self::LCURLY]]"/>
+    </module>
+
+    <!-- Checks if there’s a whitespace after specific tokens -->
+    <module name="WhitespaceAfter">
+      <property name="tokens"
+                value="COMMA, SEMI, TYPECAST, LITERAL_IF, LITERAL_ELSE, LITERAL_RETURN,
+                    LITERAL_WHILE, LITERAL_DO, LITERAL_FOR, LITERAL_FINALLY, DO_WHILE, ELLIPSIS,
+                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_CATCH, LAMBDA,
+                    LITERAL_YIELD, LITERAL_WHEN"/>
+    </module>
+
+    <!-- Enforces whitespace around certain operators and keywords, such as assignment, comparisons, and others -->
+    <module name="WhitespaceAround">
+      <property name="allowEmptyConstructors" value="true"/>
+      <property name="allowEmptyLambdas" value="true"/>
+      <property name="allowEmptyMethods" value="true"/>
+      <property name="allowEmptyTypes" value="true"/>
+      <property name="allowEmptyLoops" value="true"/>
+      <property name="allowEmptySwitchBlockStatements" value="true"/>
+      <property name="ignoreEnhancedForColon" value="false"/>
+      <property name="tokens"
+                value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR,
+                    BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, DO_WHILE, EQUAL, GE, GT, LAMBDA, LAND,
+                    LCURLY, LE, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY,
+                    LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SWITCH, LITERAL_SYNCHRONIZED,
+                    LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN,
+                    NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, RCURLY, SL, SLIST, SL_ASSIGN, SR,
+                    SR_ASSIGN, STAR, STAR_ASSIGN, LITERAL_ASSERT,
+                    TYPE_EXTENSION_AND, LITERAL_WHEN"/>
+      <message key="ws.notFollowed"
+               value="WhitespaceAround: ''{0}'' is not followed by whitespace. Empty blocks
+               may only be represented as '{}' when not part of a multi-block statement (4.1.3)"/>
+      <message key="ws.notPreceded"
+               value="WhitespaceAround: ''{0}'' is not preceded with whitespace."/>
+    </module>
+
+    <!-- Suppress specific checks for certain parts of the code based on an XPath query -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="checks" value="WhitespaceAround"/>
+      <property name="query" value="//*[self::LITERAL_IF or self::LITERAL_ELSE or self::STATIC_INIT
+                                 or self::LITERAL_TRY or self::LITERAL_CATCH]/SLIST[count(./*)=1]
+                                 | //*[self::STATIC_INIT or self::LITERAL_TRY or self::LITERAL_IF]
+                                 //*[self::RCURLY][parent::SLIST[count(./*)=1]]"/>
+    </module>
+
+    <!-- Ensures that empty blocks ({}) are not allowed to have spaces -->
+    <module name="RegexpSinglelineJava">
+      <property name="format" value="\{[ ]+\}"/>
+      <property name="message" value="Empty blocks should have no spaces. Empty blocks
+                                   may only be represented as '{}' when not part of a
+                                   multi-block statement (4.1.3)"/>
+    </module>
+
+    <!-- Enforces the rule that each statement must be written on its own line -->
+    <module name="OneStatementPerLine"/>
+
+    <!-- Ensures that only one variable is declared per line -->
+    <module name="MultipleVariableDeclarations"/>
+
+    <!-- Enforces a specific style for declaring arrays -->
+    <module name="ArrayTypeStyle"/>
+
+    <!-- Ensures that a switch statement contains a default case -->
+    <module name="MissingSwitchDefault"/>
+
+    <!-- Ensures that switch statements contain break or return -->
+    <module name="FallThrough"/>
+
+    <!-- Ensures that ellipses (...) are written in uppercase -->
+    <module name="UpperEll"/>
+
+    <!-- Enforces a specific order for modifiers like public, private, static, in method and class declarations -->
+    <module name="ModifierOrder"/>
+
+    <!-- Ensures that there are empty lines between specific code elements such as methods, classes, and variables -->
+    <module name="EmptyLineSeparator">
+      <property name="tokens"
+                value="PACKAGE_DEF, IMPORT, STATIC_IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                    STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF, RECORD_DEF,
+                    COMPACT_CTOR_DEF"/>
+      <property name="allowNoEmptyLineBetweenFields" value="true"/>
+    </module>
+
+    <!-- Controls the line wrapping for different separators (such as dots) in Java code -->
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapDot"/>
+      <property name="tokens" value="DOT"/>
+      <property name="option" value="nl"/>
+    </module>
+
+    <!-- Controls the line wrapping for different separators (such as commas) in Java code -->
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapComma"/>
+      <property name="tokens" value="COMMA"/>
+      <property name="option" value="EOL"/>
+    </module>
+
+    <!-- Controls the line wrapping for different separators (such as ellipses) in Java code -->
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapEllipsis"/>
+      <property name="tokens" value="ELLIPSIS"/>
+      <property name="option" value="EOL"/>
+    </module>
+
+    <!-- Controls the line wrapping for different separators (such as Array Declarator) in Java code -->
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapArrayDeclarator"/>
+      <property name="tokens" value="ARRAY_DECLARATOR"/>
+      <property name="option" value="EOL"/>
+    </module>
+
+    <!-- Controls the line wrapping for different separators (such as Method Reference Operator) in Java code -->
+    <module name="SeparatorWrap">
+      <property name="id" value="SeparatorWrapMethodRef"/>
+      <property name="tokens" value="METHOD_REF"/>
+      <property name="option" value="nl"/>
+    </module>
+
+    <!-- Rules for package names -->
+    <module name="PackageName">
+      <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+      <message key="name.invalidPattern"
+               value="Package name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Class, interface, enum, etc. names should follow PascalCase -->
+    <module name="TypeName">
+      <property name="tokens" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                    ANNOTATION_DEF, RECORD_DEF"/>
+      <message key="name.invalidPattern"
+               value="Type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Rules for field names -->
+    <module name="MemberName">
+      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+      <message key="name.invalidPattern"
+               value="Member name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Rules for parameter names -->
+    <module name="ParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Parameter name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Lambda parameters must use camelCase starting with a lowercase letter -->
+    <module name="LambdaParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Lambda parameter name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Catch parameter names must be in camelCase, starting with a lowercase letter -->
+    <module name="CatchParameterName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Variable names must be in camelCase, starting with a lowercase letter -->
+    <module name="LocalVariableName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Local variable name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Pattern variables must follow the same camelCase convention -->
+    <module name="PatternVariableName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Pattern variable name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Ensures that class type parameter names follow a specific pattern -->
+    <module name="ClassTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+               value="Class type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Enforces a naming convention for components of a record in Java -->
+    <module name="RecordComponentName">
+      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <message key="name.invalidPattern"
+               value="Record component name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Enforces naming conventions for type parameters within a record -->
+    <module name="RecordTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+               value="Record type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Enforces a naming convention for method type parameters -->
+    <module name="MethodTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+               value="Method type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Enforces a naming convention for interface type parameters -->
+    <module name="InterfaceTypeParameterName">
+      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <message key="name.invalidPattern"
+               value="Interface type name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Enforces the rule of not using finalizers in classes -->
+    <module name="NoFinalizer"/>
+
+    <!-- Checks the proper use of whitespace around generic type parameters -->
+    <module name="GenericWhitespace">
+      <message key="ws.followed"
+               value="GenericWhitespace ''{0}'' is followed by whitespace."/>
+      <message key="ws.preceded"
+               value="GenericWhitespace ''{0}'' is preceded with whitespace."/>
+      <message key="ws.illegalFollow"
+               value="GenericWhitespace ''{0}'' should followed by whitespace."/>
+      <message key="ws.notPreceded"
+               value="GenericWhitespace ''{0}'' is not preceded with whitespace."/>
+    </module>
+
+    <!-- Controls the indentation level of different code structures -->
+    <module name="Indentation">
+      <property name="basicOffset" value="3"/>
+      <property name="braceAdjustment" value="0"/>
+      <property name="caseIndent" value="3"/>
+      <property name="throwsIndent" value="3"/>
+      <property name="lineWrappingIndentation" value="3"/>
+      <property name="arrayInitIndent" value="3"/>
+    </module>
+
+    <!-- Suppress specific checks for certain parts of the code based on an XPath query -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="checks" value="Indentation"/>
+      <property name="query" value="//SLIST[not(parent::CASE_GROUP)]/SLIST
+                                   | //SLIST[not(parent::CASE_GROUP)]/SLIST/RCURLY"/>
+    </module>
+
+    <!-- Ensures that abbreviations in variable, method, class, and other naming conventions are used
+      consistently and appropriately -->
+    <module name="AbbreviationAsWordInName">
+      <property name="ignoreFinal" value="false"/>
+      <property name="allowedAbbreviationLength" value="0"/>
+      <property name="tokens"
+                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF,
+                    PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF,
+                    RECORD_COMPONENT_DEF"/>
+    </module>
+
+    <!-- Enforces that there should be no whitespace before the colon (:) in case or default
+      labels in switch statements -->
+    <module name="NoWhitespaceBeforeCaseDefaultColon"/>
+
+    <!-- Ensures that overloaded methods are declared in a specific order -->
+    <module name="OverloadMethodsDeclarationOrder"/>
+
+    <!-- Enforces that constructors should be grouped together and declared before methods in a class -->
+    <module name="ConstructorsDeclarationGrouping"/>
+
+    <!-- Customize the order of imports in Java files -->
+    <module name="CustomImportOrder">
+      <property name="separateLineBetweenGroups" value="true"/>
+      <property name="customImportOrderRules" value="THIRD_PARTY_PACKAGE###STATIC"/>
+      <property name="tokens" value="IMPORT, STATIC_IMPORT, PACKAGE_DEF"/>
+    </module>
+
+    <!-- Enforces a specific formatting style for method parameters -->
+    <module name="MethodParamPad">
+      <property name="tokens"
+                value="CTOR_DEF, LITERAL_NEW, METHOD_CALL, METHOD_DEF, CTOR_CALL,
+                    SUPER_CTOR_CALL, ENUM_CONSTANT_DEF, RECORD_DEF, RECORD_PATTERN_DEF"/>
+    </module>
+
+    <!-- Ensures that there is no whitespace before certain tokens in your Java code -->
+    <module name="NoWhitespaceBefore">
+      <property name="tokens"
+                value="COMMA, SEMI, POST_INC, POST_DEC, DOT,
+                    LABELED_STAT, METHOD_REF"/>
+      <property name="allowLineBreaks" value="true"/>
+    </module>
+
+    <!-- Checks for proper spacing (padding) inside parentheses -->
+    <module name="ParenPad">
+      <property name="tokens"
+                value="ANNOTATION, ANNOTATION_FIELD_DEF, CTOR_CALL, CTOR_DEF, DOT, ENUM_CONSTANT_DEF,
+                    EXPR, LITERAL_CATCH, LITERAL_DO, LITERAL_FOR, LITERAL_IF, LITERAL_NEW,
+                    LITERAL_SWITCH, LITERAL_SYNCHRONIZED, LITERAL_WHILE, METHOD_CALL,
+                    METHOD_DEF, QUESTION, RESOURCE_SPECIFICATION, SUPER_CTOR_CALL, LAMBDA,
+                    RECORD_DEF, RECORD_PATTERN_DEF"/>
+    </module>
+
+    <!-- Ensures that binary and logical operators (like +, ==, &&) are at the beginning of the next line -->
+    <module name="OperatorWrap">
+      <property name="option" value="NL"/>
+      <property name="tokens"
+                value="BAND, BOR, BSR, BXOR, DIV, EQUAL, GE, GT, LAND, LE, LITERAL_INSTANCEOF, LOR,
+                    LT, MINUS, MOD, NOT_EQUAL, PLUS, QUESTION, SL, SR, STAR, METHOD_REF,
+                    TYPE_EXTENSION_AND "/>
+    </module>
+
+    <!-- Ensures that annotations for classes, interfaces, enums, methods, constructors, and records
+      are placed on a separate line above the declaration -->
+    <module name="AnnotationLocation">
+      <property name="id" value="AnnotationLocationMostCases"/>
+      <property name="tokens"
+                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF,
+                      RECORD_DEF, COMPACT_CTOR_DEF"/>
+    </module>
+
+    <!-- Enforces proper placement of annotations for variables -->
+    <module name="AnnotationLocation">
+      <property name="id" value="AnnotationLocationVariables"/>
+      <property name="tokens" value="VARIABLE_DEF"/>
+      <property name="allowSamelineMultipleAnnotations" value="true"/>
+    </module>
+
+    <!-- Ensures that Javadoc @-tags (@param, @return, @throws, etc.) are not empty -->
+    <module name="NonEmptyAtclauseDescription"/>
+
+    <!-- Ensures that Javadoc comments are immediately above the target declaration -->
+    <module name="InvalidJavadocPosition"/>
+
+    <!-- Ensures that multi-line Javadoc tags (@param, @return, @throws) are properly indented -->
+    <module name="JavadocTagContinuationIndentation"/>
+
+    <!-- Enforces that Javadoc should not contain multiple paragraphs unless explicitly allowed -->
+    <module name="JavadocParagraph">
+      <property name="allowNewlineParagraph" value="false"/>
+    </module>
+
+    <!-- Ensures that there is an empty line before Javadoc block tags (@param, @return, etc.) -->
+    <module name="RequireEmptyLineBeforeBlockTagGroup"/>
+
+    <!-- Enforces a specific order of Javadoc tags like @param, @return, @throws -->
+    <module name="AtclauseOrder">
+      <property name="tagOrder" value="@param, @return, @throws, @deprecated"/>
+      <property name="target"
+                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
+    </module>
+
+    <!-- Enforces proper Javadoc documentation for methods -->
+    <module name="JavadocMethod">
+      <property name="accessModifiers" value="public"/>
+      <property name="allowMissingParamTags" value="true"/>
+      <property name="allowMissingReturnTag" value="true"/>
+      <property name="allowedAnnotations" value="Override, Test"/>
+      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF, COMPACT_CTOR_DEF"/>
+    </module>
+
+    <!-- Ensures methods have Javadoc comments, unless they are annotated with something like @Override or @Test -->
+    <module name="MissingJavadocMethod">
+      <property name="scope" value="protected"/>
+      <property name="allowMissingPropertyJavadoc" value="true"/>
+      <property name="allowedAnnotations" value="Override, Test"/>
+      <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF,
+                                   COMPACT_CTOR_DEF"/>
+    </module>
+
+    <!-- Suppress specific checks for certain parts of the code based on an XPath query -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="checks" value="MissingJavadocMethod"/>
+      <property name="query" value="//*[self::METHOD_DEF or self::CTOR_DEF
+                                 or self::ANNOTATION_FIELD_DEF or self::COMPACT_CTOR_DEF]
+                                 [ancestor::*[self::INTERFACE_DEF or self::CLASS_DEF
+                                 or self::RECORD_DEF or self::ENUM_DEF]
+                                 [not(./MODIFIERS/LITERAL_PUBLIC)]]"/>
+    </module>
+
+    <!-- Checks whether methods, constructors, or annotation fields have Javadoc comments -->
+    <module name="MissingJavadocType">
+      <property name="scope" value="protected"/>
+      <property name="tokens"
+                value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF,
+                      RECORD_DEF, ANNOTATION_DEF"/>
+      <property name="excludeScope" value="nothing"/>
+    </module>
+
+    <!-- Ensures that all method names follow a specific naming convention -->
+    <module name="MethodName">
+      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+      <message key="name.invalidPattern"
+               value="Method name ''{0}'' must match pattern ''{1}''."/>
+    </module>
+
+    <!-- Suppress specific checks for certain parts of the code based on an XPath query -->
+    <module name="SuppressionXpathSingleFilter">
+      <property name="checks" value="MethodName"/>
+      <property name="query" value="//METHOD_DEF[
+                                     ./MODIFIERS/ANNOTATION//IDENT[contains(@text, 'Test')]
+                                   ]/IDENT"/>
+      <property name="message" value="'[a-z][a-z0-9][a-zA-Z0-9]*(?:_[a-z][a-z0-9][a-zA-Z0-9]*)*'"/>
+    </module>
+
+    <!-- Enforces that Javadoc comments must fit in a single line where possible -->
+    <module name="SingleLineJavadoc"/>
+
+    <!-- Requires that empty catch blocks must use a variable named ignored -->
+    <module name="EmptyCatchBlock">
+      <property name="exceptionVariableName" value="ignored"/>
+    </module>
+
+    <!-- Ensures that single-line (//) and block (/* ... */) comments are properly indented -->
+    <module name="CommentsIndentation">
+      <property name="tokens" value="SINGLE_LINE_COMMENT, BLOCK_COMMENT_BEGIN"/>
+    </module>
+
+    <!-- Allows handling of @SuppressWarnings annotations -->
+    <module name="SuppressWarningsHolder" />
+
+    <!-- Validates specific Javadoc tags (e.g., @author) -->
+    <module name="WriteTag">
+      <property name="tag" value="@author"/>
+      <property name="tagFormat" value="^.* 💍👨💻$"/>
+      <property name="tagSeverity" value="ignore"/>
+    </module>
+  </module>
+</module>
