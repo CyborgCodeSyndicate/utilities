@@ -7,7 +7,7 @@
 
     <groupId>io.cyborgcode.utilities</groupId>
     <artifactId>shared-static-data</artifactId>
-    <version>0.0.0</version>
+    <version>1.0.0-rc-1</version>
     <packaging>jar</packaging>
 
     <name>Cyborg Code Shared Static Data</name>
