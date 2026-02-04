@@ -6,7 +6,7 @@
 
     <groupId>io.cyborgcode.utilities</groupId>
     <artifactId>parent-pom</artifactId>
-    <version>0.0.0</version>
+    <version>1.0.0-rc-2</version>
     <packaging>pom</packaging>
     <name>Cyborg Code Utilities Parent</name>
     <description>Parent POM and dependency management for Cyborg Code Syndicate Java libraries.</description>
