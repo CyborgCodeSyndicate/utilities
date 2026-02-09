@@ -80,7 +80,7 @@
         <allure.version>2.32.0</allure.version>
         <selenium.version>4.40.0</selenium.version>
         <webdrivermanager.version>6.3.3</webdrivermanager.version>
-        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <junit-platform.version>6.0.2</junit-platform.version>
 
         <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
@@ -120,8 +120,8 @@
 
         <asm.version>9.9.1</asm.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
-        <checker-qual.version>3.53.0</checker-qual.version>
-        <error_prone_annotations.version>2.46.0</error_prone_annotations.version>
+        <checker-qual.version>3.53.1</checker-qual.version>
+        <error_prone_annotations.version>2.47.0</error_prone_annotations.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-io.version>2.21.0</commons-io.version>
         <plexus-classworlds.version>2.9.0</plexus-classworlds.version>
