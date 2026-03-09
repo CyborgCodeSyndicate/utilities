@@ -67,23 +67,23 @@
         <log4j.version>2.25.3</log4j.version>
         <reflections.version>0.10.2</reflections.version>
         <owner.version>1.0.12</owner.version>
-        <spring.version>4.0.2</spring.version>
+        <spring.version>4.0.3</spring.version>
         <restassured.version>6.0.0</restassured.version>
-        <jackson.version>3.0.4</jackson.version>
-        <jsonpath.version>2.10.0</jsonpath.version>
+        <jackson.version>3.1.0</jackson.version>
+        <jsonpath.version>3.0.0</jsonpath.version>
         <assertj.version>3.27.7</assertj.version>
 
-        <junit.version>6.0.2</junit.version>
-        <mockito.version>5.21.0</mockito.version>
+        <junit.version>6.0.3</junit.version>
+        <mockito.version>5.22.0</mockito.version>
         <h2.database.version>2.4.240</h2.database.version>
         <jacoco.version>0.8.14</jacoco.version>
-        <allure.version>2.32.0</allure.version>
-        <selenium.version>4.40.0</selenium.version>
+        <allure.version>2.33.0</allure.version>
+        <selenium.version>4.41.0</selenium.version>
         <webdrivermanager.version>6.3.3</webdrivermanager.version>
-        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
-        <junit-platform.version>6.0.2</junit-platform.version>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <junit-platform.version>6.0.3</junit-platform.version>
 
-        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
         <surefire.parallel.type>methods</surefire.parallel.type>
         <surefire.parallel.threads>5</surefire.parallel.threads>
 
@@ -106,7 +106,7 @@
         <project.reporting.outputDirectory>${project.build.directory}/site</project.reporting.outputDirectory>
         <jacoco.minimum.coverage>0.90</jacoco.minimum.coverage>
 
-        <maven-resources-plugin.version>3.4.0</maven-resources-plugin.version>
+        <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
 
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
@@ -120,18 +120,18 @@
 
         <asm.version>9.9.1</asm.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version>
-        <checker-qual.version>3.53.0</checker-qual.version>
-        <error_prone_annotations.version>2.46.0</error_prone_annotations.version>
+        <checker-qual.version>3.54.0</checker-qual.version>
+        <error_prone_annotations.version>2.48.0</error_prone_annotations.version>
         <commons-compress.version>1.28.0</commons-compress.version>
         <commons-io.version>2.21.0</commons-io.version>
         <plexus-classworlds.version>2.9.0</plexus-classworlds.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
-        <maven.version>3.9.12</maven.version>
+        <maven.version>3.9.13</maven.version>
         <maven-plugin.version>3.15.2</maven-plugin.version>
         <testng.version>7.12.0</testng.version>
         <classgraph.version>4.8.184</classgraph.version>
         <httpclient5.version>5.6</httpclient5.version>
-        <httpcore5.version>5.4</httpcore5.version>
+        <httpcore5.version>5.4.2</httpcore5.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <gson.version>2.13.2</gson.version>
         <jna.version>5.18.1</jna.version>
