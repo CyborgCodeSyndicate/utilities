@@ -78,7 +78,7 @@
         <h2.database.version>2.4.240</h2.database.version>
         <jacoco.version>0.8.15</jacoco.version>
         <allure.version>2.35.2</allure.version>
-        <selenium.version>4.44.0</selenium.version>
+        <selenium.version>4.45.0</selenium.version>
         <webdrivermanager.version>6.3.4</webdrivermanager.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <junit-platform.version>6.1.0</junit-platform.version>
@@ -143,7 +143,7 @@
         <maven-javadoc-plugin.failOnError>true</maven-javadoc-plugin.failOnError>
         <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
         <groovy.version>5.0.6</groovy.version>
-        <central-publishing-maven-plugin.version>0.10.0</central-publishing-maven-plugin.version>
+        <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
     </properties>
 
