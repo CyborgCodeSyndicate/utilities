@@ -105,6 +105,7 @@
 
         <project.reporting.outputDirectory>${project.build.directory}/site</project.reporting.outputDirectory>
         <jacoco.minimum.coverage>0.90</jacoco.minimum.coverage>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/ut/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
@@ -156,11 +157,26 @@
         <tree-sitter-c-sharp.version>0.23.1</tree-sitter-c-sharp.version>
         <mustache.version>0.9.14</mustache.version>
         <langchain4j.version>1.22.0</langchain4j.version>
+
+        <!-- Pandora Optimizer keeps Jackson 2 separate from the Jackson 3 baseline. -->
+        <jackson2.version>2.22.4</jackson2.version>
+        <json-schema-validator.version>2.0.8</json-schema-validator.version>
+        <pandora-optimizer.version>0.1.0</pandora-optimizer.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
     </properties>
 
 
     <dependencyManagement>
         <dependencies>
+            <!-- Import before other BOMs so Jackson 2 retains its own compatible component versions. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-bom</artifactId>
@@ -472,6 +488,43 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+
+            <!-- Pandora Optimizer -->
+            <dependency>
+                <groupId>com.networknt</groupId>
+                <artifactId>json-schema-validator</artifactId>
+                <version>${json-schema-validator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-nop</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.javaparser</groupId>
+                <artifactId>javaparser-symbol-solver-core</artifactId>
+                <version>${javaparser.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cyborgcode.pandora</groupId>
+                <artifactId>pandora-annotations</artifactId>
+                <version>${pandora-optimizer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cyborgcode.pandora</groupId>
+                <artifactId>pandora-engine</artifactId>
+                <version>${pandora-optimizer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cyborgcode.pandora</groupId>
+                <artifactId>pandora-adapter-java</artifactId>
+                <version>${pandora-optimizer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.cyborgcode.pandora</groupId>
+                <artifactId>pandora-cli</artifactId>
+                <version>${pandora-optimizer.version}</version>
             </dependency>
 
             <dependency>
@@ -928,6 +981,20 @@
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${versions-maven-plugin.version}</version>
+                    <configuration>
+                        <updateMatchingVersions>false</updateMatchingVersions>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
@@ -1104,6 +1171,17 @@
                     <id>github-pandora</id>
                     <name>GitHub Packages for Pandora</name>
                     <url>https://maven.pkg.github.com/${github.repo.owner}/pandora</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>github-pandora-optimizer</id>
+                    <name>GitHub Packages for Pandora Optimizer</name>
+                    <url>https://maven.pkg.github.com/${github.repo.owner}/pandora-optimizer</url>
                     <releases>
                         <enabled>true</enabled>
                     </releases>
