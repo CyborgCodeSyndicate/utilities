@@ -83,6 +83,25 @@ If you cannot inherit from the parent (for example, when another repository alre
 
 Anything listed above can be used from a child module with just a `<dependency>` declaration. If a library is missing, add it here first so the rest of the ecosystem benefits from the change.
 
+### Pandora Optimizer
+
+The parent also manages `json-schema-validator`, `javaparser-symbol-solver-core`,
+`slf4j-nop` and the four `io.cyborgcode.pandora` Optimizer artifacts. Picocli,
+JavaParser, SLF4J and JUnit reuse the existing shared version properties.
+Jackson 2 uses the separate `com.fasterxml.jackson:jackson-bom` import and
+`jackson2.version`; the existing `tools.jackson` Jackson 3 BOM is retained.
+The Jackson 2 BOM manages its annotation component version, which does not
+use the same patch numbering as databind/core.
+
+Pandora's reactor inherits this parent through its root POM. It sets
+`pandora-optimizer.version` to `${project.version}` so managed internal
+dependencies follow a reactor release bump; other consumers use the centrally
+managed Optimizer version. The CLI/engine target Java 21 and the annotation SDK
+targets Java 17. Dependency and plugin versions are declared here rather than
+in the consuming modules. The standard 90% coverage and static checks remain
+active. The GitHub profile includes the `github-pandora-optimizer` artifact
+repository; configure credentials through the shared Maven setup action.
+
 ## Build & quality plugins
 
 All critical plugins are defined under `<pluginManagement>` _and_ reiterated in `<build><plugins>` so they are always active in children:
