@@ -79,6 +79,7 @@
         <jacoco.version>0.8.15</jacoco.version>
         <allure.version>2.35.2</allure.version>
         <selenium.version>4.44.0</selenium.version>
+        <playwright.version>1.49.0</playwright.version>
         <webdrivermanager.version>6.3.4</webdrivermanager.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
         <junit-platform.version>6.1.0</junit-platform.version>
@@ -183,6 +184,12 @@
                 <version>${selenium.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.microsoft.playwright</groupId>
+                <artifactId>playwright</artifactId>
+                <version>${playwright.version}</version>
             </dependency>
 
             <dependency>
