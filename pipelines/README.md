@@ -198,7 +198,7 @@ Comprehensive PR validation with build verification, testing, security scanning,
 
 #### Setup Maven (`shared/setup-maven`)
 
-Configures Java environment and Maven authentication for GitHub Packages.
+Configures Java, installs Apache Maven 3.10.2, and configures Maven authentication for GitHub Packages. The `maven_version` input can override the Maven version. Maven archives are verified against their SHA-512 checksums before extraction. The shared parent requires Maven 3.10 or newer for the current Sonar Maven plugin.
 
 **Features:**
 - Java/Maven environment setup with caching

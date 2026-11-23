@@ -44,18 +44,16 @@ runs:
   steps:
     # === CHECKOUT SPECIFIC VERSION ===
     - name: Checkout Repository at Version Tag
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         ref: "v${{ inputs.version }}"
         fetch-depth: 0
 
     # === SETUP JAVA ===
-    - name: Setup Java
-      uses: actions/setup-java@v4
+    - name: Setup Maven and Java
+      uses: CyborgCodeSyndicate/utilities/pipelines/shared/setup-maven@main
       with:
-        distribution: temurin
-        java-version: ${{ inputs.java_version }}
-        cache: maven
+        java_version: ${{ inputs.java_version }}
 
     # === CONFIGURE GPG FOR SIGNING ===
     - name: Configure GPG Key

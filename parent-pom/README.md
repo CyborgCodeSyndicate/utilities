@@ -15,7 +15,7 @@
 
 `parent-pom` is the shared Maven parent published as `io.cyborgcode.utilities:parent-pom`. Use it as the parent for every published module; the repo root module is only an aggregator and is not published to Maven Central.
 
-- Standardizes Java 17 compilation and UTF-8 encoding, and enforces Maven 3.8+ / Java 17 via the Enforcer plugin.
+- Standardizes Java 17 compilation and UTF-8 encoding, and enforces Maven 3.10+ / Java 17 via the Enforcer plugin.
 - Centralizes dependency versions through BOM imports that cover logging, Spring Boot, serialization, API test clients, browsers, and the full JUnit/Mockito/TestNG stack.
 - Pre-configures compiler, test, lint, coverage, reporting, release, and security plugins so child projects only need to declare code.
 - Supports Maven Central publishing via the `central` profile. GitHub Packages publishing remains available via the `github` profile when needed.
@@ -76,12 +76,14 @@ If you cannot inherit from the parent (for example, when another repository alre
 | Spring & runtime | `org.springframework.boot` BOM + `spring-boot-starter`/`spring-boot-starter-test`, `org.apache.httpcomponents.client5:httpclient5`, `commons-io`, `commons-compress`. |
 | Serialization & API clients | `tools.jackson:jackson-bom`, `com.jayway.jsonpath:json-path`, `io.rest-assured:rest-assured-bom`, `io.github.classgraph:classgraph`. |
 | Test & QA | `org.junit:junit-bom`, the full JUnit Platform (`launcher`, `engine`, `commons`, `jupiter-*`), `org.mockito:*`, `com.h2database:h2`, `org.testng:testng`, `io.qameta.allure:allure-bom`. |
-| Automation & browsers | `org.seleniumhq.selenium:selenium-dependencies-bom`, `selenium-java`, `io.github.bonigarcia:webdrivermanager`. |
+| Automation & browsers | `org.seleniumhq.selenium:selenium-dependencies-bom`, `selenium-java`, `com.microsoft.playwright:playwright`, `io.github.bonigarcia:webdrivermanager`. |
 | Build tooling | `org.ow2.asm:asm(-bom)`, `com.github.spotbugs:spotbugs-annotations`, `org.checkerframework:checker-qual`, `org.codehaus.plexus:*`, `org.apache.maven:maven-(plugin-api|core)`, `com.google.errorprone:error_prone_annotations`. |
 
 </details>
 
 Anything listed above can be used from a child module with just a `<dependency>` declaration. If a library is missing, add it here first so the rest of the ecosystem benefits from the change.
+
+Version updates retain Java 17 and the existing consumer APIs: Checkstyle stays on 12.x, ClassGraph on 4.x, Allure on 2.x, and Groovy on 5.x. New major versions require a separate compatibility review. JUnit and JUnit Platform are aligned at 6.1.3. Playwright is managed at 1.65.1; consumers upgrading from 1.49.0 must also update their browser installations and run their UI tests.
 
 ## Build & quality plugins
 
@@ -94,7 +96,7 @@ All critical plugins are defined under `<pluginManagement>` _and_ reiterated in 
 | --- | --- |
 | `maven-compiler-plugin` | Compiles with Java 17, emits parameter metadata, enables `-Xlint:unchecked,deprecation`, and forks the compiler for stability. |
 | `maven-surefire-plugin` | Runs tests in parallel at the method level (`threadCount=5`) and skips anything tagged with `exclude-from-verify`. |
-| `maven-enforcer-plugin` | Requires Maven 3.8+, Java 17, bans duplicate dependency versions, enforces dependency convergence, and blocks SNAPSHOT dependencies outside the `io.cyborgcode` group. |
+| `maven-enforcer-plugin` | Requires Maven 3.10+, Java 17, bans duplicate dependency versions, enforces dependency convergence, and blocks SNAPSHOT dependencies outside the `io.cyborgcode` group. |
 | `maven-checkstyle-plugin` | Uses the shared `io/cyborgcode/static-data/roa_checks.xml` ruleset, fails on violations, and checks both main and test sources. |
 | `maven-javadoc-plugin` & `maven-source-plugin` | Attach aggregated source/javadoc jars, publish docs to `target/javadocs`, and run during `package`/`site`. |
 | `dependency-check-maven` | Executes module-level checks plus a parent-only aggregate report, writes JSON/HTML/SARIF outputs, and consumes `dependency-check-suppressions.xml` from the repo root. |

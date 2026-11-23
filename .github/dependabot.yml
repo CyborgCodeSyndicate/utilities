@@ -17,8 +17,28 @@ updates:
       include: "scope"
     ignore:
       - dependency-name: "com.puppycrawl.tools:checkstyle"
+        # Checkstyle 13+ requires Java 21; this parent supports Java 17.
+        versions: [">=13.0.0"]
     groups:
       parent-pom:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "maven"
+    directory: "/shared-static-data"
+    target-branch: "main"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:10"
+      timezone: "Europe/Skopje"
+    open-pull-requests-limit: 10
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      shared-static-data:
         patterns:
           - "*"
 

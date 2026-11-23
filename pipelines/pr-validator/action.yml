@@ -54,7 +54,7 @@ runs:
   steps:
     # === INITIALIZATION ===
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0  # Full history for better code analysis
 
@@ -104,7 +104,7 @@ runs:
     # === TEST REPORTING ===
     - name: Publish Test Results
       if: always()
-      uses: dorny/test-reporter@v2
+      uses: dorny/test-reporter@v3
       with:
         name: Unit Test Results
         path: '**/target/surefire-reports/*.xml'
@@ -225,7 +225,7 @@ runs:
     - name: Upload SpotBugs Results to GitHub Security
       # Only upload for public repos and if SARIF exists & has results
       if: ${{ github.event.repository.private == false && steps.security_scans.outputs.spotbugs_found == 'true' }}
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       with:
         sarif_file: sarif-reports/spotbugs-merged.sarif
         category: spotbugs
@@ -233,14 +233,14 @@ runs:
     - name: Upload Dependency-Check Results to GitHub Security
       # Only upload for public repos and if SARIF exists & has results
       if: ${{ github.event.repository.private == false && steps.security_scans.outputs.owasp_found == 'true' }}
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       with:
         sarif_file: sarif-reports/dependency-check-merged.sarif
         category: dependency-check
 
     # === CODE COVERAGE ===
     - name: Publish Code Coverage Report
-      uses: madrapps/jacoco-report@v1.7.2
+      uses: madrapps/jacoco-report@v1.8.0
       with:
         paths: '**/target/site/jacoco/ut/jacoco.xml'
         token: ${{ inputs.github_token }}

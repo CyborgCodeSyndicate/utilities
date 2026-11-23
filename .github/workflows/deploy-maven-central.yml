@@ -15,7 +15,7 @@ jobs:
   deploy-central:
     name: Deploy to Maven Central
     runs-on: ubuntu-latest
-    
+
     steps:
       # Use the composite action to deploy to Maven Central
       - name: Deploy Utilities to Maven Central
@@ -33,45 +33,56 @@ jobs:
 
       - name: Create GitHub Release
         if: success()
-        uses: actions/create-release@v1
+        shell: bash
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: "v${{ inputs.version }}"
-          release_name: "Release v${{ inputs.version }} - Maven Central"
-          body: |
-            ## 📦 Maven Central Release
-            
-            Version `${{ inputs.version }}` has been deployed to Maven Central.
-            
-            ### Deployed Modules
-            - `io.cyborgcode.utilities:parent-pom:${{ inputs.version }}`
-            - `io.cyborgcode.utilities:commons:${{ inputs.version }}`
-            - `io.cyborgcode.utilities:shared-static-data:${{ inputs.version }}`
-            
-            ### Usage
-            Add the following to your `pom.xml`:
-            ```xml
-            <dependency>
-              <groupId>io.cyborgcode.utilities</groupId>
-              <artifactId>parent-pom</artifactId>
-              <version>${{ inputs.version }}</version>
-              <type>pom</type>
-              <scope>import</scope>
-            </dependency>
-            ```
-            
-            Or for the commons module:
-            ```xml
-            <dependency>
-              <groupId>io.cyborgcode.utilities</groupId>
-              <artifactId>commons</artifactId>
-              <version>${{ inputs.version }}</version>
-            </dependency>
-            ```
-            
-            ### Notes
-            - Artifacts may take up to 30 minutes to appear in Maven Central
-            - Search for artifacts: https://search.maven.org/search?q=g:io.cyborgcode.utilities
-          draft: false
-          prerelease: ${{ contains(inputs.version, '-rc-') }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          cat > "$RUNNER_TEMP/release-notes.md" <<'RELEASE_NOTES'
+          ## 📦 Maven Central Release
+
+          Version `__VERSION__` has been deployed to Maven Central.
+
+          ### Deployed Modules
+          - `io.cyborgcode.utilities:parent-pom:__VERSION__`
+          - `io.cyborgcode.utilities:commons:__VERSION__`
+          - `io.cyborgcode.utilities:shared-static-data:__VERSION__`
+
+          ### Usage
+          Add the following to your `pom.xml`:
+          ```xml
+          <dependency>
+            <groupId>io.cyborgcode.utilities</groupId>
+            <artifactId>parent-pom</artifactId>
+            <version>__VERSION__</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+          ```
+
+          Or for the commons module:
+          ```xml
+          <dependency>
+            <groupId>io.cyborgcode.utilities</groupId>
+            <artifactId>commons</artifactId>
+            <version>__VERSION__</version>
+          </dependency>
+          ```
+
+          ### Notes
+          - Artifacts may take up to 30 minutes to appear in Maven Central
+          - Search for artifacts: https://search.maven.org/search?q=g:io.cyborgcode.utilities
+          RELEASE_NOTES
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          path = Path(os.environ["RUNNER_TEMP"]) / "release-notes.md"
+          path.write_text(path.read_text().replace("__VERSION__", os.environ["VERSION"]))
+          PY
+          args=("v$VERSION" --verify-tag --title "Release v$VERSION - Maven Central" --notes-file "$RUNNER_TEMP/release-notes.md")
+          if [[ "$VERSION" == *-rc-* ]]; then
+            args+=(--prerelease)
+          fi
+          gh release create "${args[@]}"
