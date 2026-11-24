@@ -17,14 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # Bootstrap the toolchain from this PR before nested actions resolve @main.
-      - name: Set up Maven and Java
-        uses: ./pipelines/shared/setup-maven
-        with:
-          java_version: "17"
-          github_packages_user: ${{ secrets.GH_PACKAGES_USER }}
-          github_packages_token: ${{ secrets.GH_PACKAGES_PAT }}
-
       - name: Run PR pipeline
         uses: ./pipelines/pr-validator
         with:

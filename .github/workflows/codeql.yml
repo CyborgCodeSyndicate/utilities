@@ -22,10 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up Maven and Java
-        uses: ./pipelines/shared/setup-maven
+      - name: Set up Java
+        uses: actions/setup-java@v6
         with:
-          java_version: "17"
+          distribution: temurin
+          java-version: "17"
+          cache: maven
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4

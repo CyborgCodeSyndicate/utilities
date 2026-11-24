@@ -50,10 +50,12 @@ runs:
         fetch-depth: 0
 
     # === SETUP JAVA ===
-    - name: Setup Maven and Java
-      uses: CyborgCodeSyndicate/utilities/pipelines/shared/setup-maven@main
+    - name: Setup Java
+      uses: actions/setup-java@v6
       with:
-        java_version: ${{ inputs.java_version }}
+        distribution: temurin
+        java-version: ${{ inputs.java_version }}
+        cache: maven
 
     # === CONFIGURE GPG FOR SIGNING ===
     - name: Configure GPG Key
